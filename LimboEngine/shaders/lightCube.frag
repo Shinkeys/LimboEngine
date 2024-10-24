@@ -21,7 +21,7 @@ void main()
 	vec3 specular = texture(texture_specular1, TexCoords).rgb;
 
 
-	vec3 normalMap = texture(texture_normal1, TexCoords).rgb;
+	vec3 normalMap = normalize(Normal);
     normalMap = normalize(normalMap * 2.0 - 1.0);
     vec3 norm = normalize(normalMap);
 

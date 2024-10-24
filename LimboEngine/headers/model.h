@@ -19,25 +19,23 @@
 #include <fstream>
 #include <sstream>
 
-struct Vertex 
+struct Vertex
 {
 	glm::vec3 Vert;
-	glm::vec3 Normals;
-	glm::vec2 TexCoords;
+	glm::vec3 Normal;
+	glm::vec2 Uv;
 };
 
 class Model
 {
 public:
-	std::vector<glm::vec3> outVertices, outNormals;
-	std::vector<glm::vec2> outUvs;
+
 	unsigned int VAO;
 
 	Model(const std::string& path)
 	{
 		processMesh(path);
 		setupMesh(vert);
-		
 	}
 
 	void Draw()
@@ -47,12 +45,13 @@ public:
 		glDrawElements(GL_TRIANGLES, vertexInd.size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
-	}
+	} 
 	
 	
 
 private:
 	Vertex vert;
+	std::vector<Vertex> outVertices;
 	std::vector<unsigned int> vertexInd, uvInd, normalInd;
 	unsigned int VBO, EBO;
 
@@ -65,22 +64,21 @@ private:
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-		glBufferData(GL_ARRAY_BUFFER, outVertices.size() * sizeof(glm::vec3), &outVertices[0], GL_STATIC_DRAW);
-		
+		glBufferData(GL_ARRAY_BUFFER, outVertices.size() * sizeof(Vertex), &outVertices[0], GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexInd.size() * sizeof(unsigned int), &vertexInd[0], GL_STATIC_DRAW); // to do
 
 		
-		
+	
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
-		/*glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normals));
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, Normal)));
 
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));*/
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Uv));
 
 		
 
@@ -88,14 +86,13 @@ private:
 
 	}
 
-
 	void processMesh(const std::string& pFile)
 	{
 		std::ifstream myFile;
 		myFile.open(pFile);
 		std::vector<glm::vec3> tempVertices;
 		std::vector<glm::vec2> tempUvs;
-		std::vector<glm::vec3> tempNormals;
+		std::vector<glm::vec3> tempNormal;
 		std::string line;
 
 		while (myFile.peek() != EOF) {
@@ -108,7 +105,7 @@ private:
 
 				tempVertices.emplace_back(vertex);
 			}
-			else if (line.compare(0, 2, "vt") == 0)
+			if (line.compare(0, 2, "vt") == 0)
 			{
 				glm::vec2 uv;
 				std::istringstream lineStream(line.substr(3));
@@ -117,47 +114,43 @@ private:
 
 				tempUvs.emplace_back(uv);
 			}
-			else if (line.compare(0, 2, "vn") == 0)
-			{
+			if (line.compare(0, 2, "vn") == 0)
+			{	
 				glm::vec3 normals;
 				std::istringstream lineStream(line.substr(3));
 
 				lineStream >> normals.x >> normals.y >> normals.z;
+				tempNormal.emplace_back(normals);
 
-				tempNormals.emplace_back(normals);
 			}
-			else if (line.rfind("f", 0) == 0)
+			if (line.rfind("f", 0) == 0)
 			{
-				unsigned int vertex[3], uv[3], normals[3];
+				unsigned int vertex[3], uv[3], normal[3];
 				std::istringstream lineStream(line.substr(2));
 				char slash;
-				lineStream >> vertex[0] >> slash >> uv[0] >> slash >> normals[0];
-
-				lineStream >> vertex[1] >> slash >> uv[1] >> slash >> normals[1];
-
-				lineStream >> vertex[2] >> slash >> uv[2] >> slash >> normals[2];
+				
 
 
-				// adding vertices by faces to draw
-				outVertices.emplace_back(tempVertices[vertex[0] - 1]);
-				outVertices.emplace_back(tempVertices[vertex[1] - 1]);
-				outVertices.emplace_back(tempVertices[vertex[2] - 1]);
-	
-				/*outNormals.emplace_back(tempNormals[normals[0] - 1]);
-				outNormals.emplace_back(tempNormals[normals[1] - 1]);
-				outNormals.emplace_back(tempNormals[normals[2] - 1]);
-	
-				outUvs.emplace_back(tempUvs[uv[0] - 1]);
-				outUvs.emplace_back(tempUvs[uv[1] - 1]);
-				outUvs.emplace_back(tempUvs[uv[2] - 1]);*/				
+
+				for (int i = 0; i < 3; ++i) {
+					lineStream >> vertex[i] >> slash >> uv[i] >> slash >> normal[i];
+					// adding vertices by faces to draw
+					vert.Vert = tempVertices[vertex[i] - 1];
+					// adding normals
+					vert.Normal = tempNormal[normal[i] - 1];
+					vert.Uv = tempUvs[uv[i] - 1];
+					//// adding texture coords
+
+
+					outVertices.emplace_back(vert);
+				}
 			}
 		}
-
+		
 		for (unsigned int i = 0; i < outVertices.size(); ++i)
 		{
 			vertexInd.emplace_back(i);
 		} // adding indices of elements to for EBO
-		
 		
 			
 	}
