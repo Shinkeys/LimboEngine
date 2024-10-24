@@ -1,0 +1,374 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include "../headers/shader.h"
+#include "../headers/camera.h"
+#include "../headers/model.h"
+
+#include <glm/gtc/matrix_transform.hpp> 
+#include <glm/glm.hpp>
+#include <iostream>
+#include <vector>
+#define STB_IMAGE_IMPLEMENTATION
+#include "../headers/stb_image.h"
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+
+struct Meshes {
+	std::vector<uint32_t> indices;
+};
+
+struct House {
+	std::vector<glm::vec3> positions;
+	uint32_t width{ 10 };
+	uint32_t height{ 3 };
+	uint32_t length{ 5 };
+};
+
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void processInput(GLFWwindow* window);
+void mouse_callback(GLFWwindow* window, double xPos, double yPos);
+void lightMove(GLFWwindow* window);
+unsigned int loadTexture(char const* path);
+
+// settings
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
+
+glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 camTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+
+glm::vec3 camDirection = glm::normalize(camPos - camTarget);
+
+glm::vec3 camRight = glm::normalize(glm::cross(up, camDirection));
+
+glm::vec3 camFront = glm::vec3(0.0f, 0.0f, -1.0f);
+
+// movement
+float deltaTime{ 0.0f };
+float lastTime{ 0.0f };
+
+
+
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+bool firstMove{ true };
+float lastX{ SCR_WIDTH / 2.0f };
+float lastY{ SCR_HEIGHT / 2.0f };
+
+glm::vec3 lightPos = glm::vec3(0.0f, 1.0f, 3.0f);
+
+
+int main() {
+	// glfw: initialize and configure
+	// ------------------------------
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+	// glfw window creation
+	// --------------------
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+	if (window == NULL)
+	{
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return -1;
+	}
+	glfwMakeContextCurrent(window);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+
+	// glad: load all OpenGL function pointers
+	// ---------------------------------------
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return -1;
+	}
+
+	glEnable(GL_DEPTH_TEST);
+	glFrontFace(GL_CCW);
+
+	Shader lamp("shaders/lamp.vert", "shaders/lamp.frag");
+	Shader lightCubeShader("shaders/lightCube.vert", "shaders/lightCube.frag");
+	Model ourModel("resources/objects/untitled.obj");
+
+	Meshes mesh;
+	House house;
+
+	float vertices[] = {
+					// normals            // texture
+-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+ 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+ 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+ 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+
+-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+ 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+ 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+ 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+
+-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+ 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+ 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+ 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+ 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+ 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+ 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+ 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+ 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+ 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+
+-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+ 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+ 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+ 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
+	};
+
+	mesh.indices = {
+	0, 1, 2, 3, 4, 5,
+	6, 7, 8, 9, 10, 11,
+	12, 13, 14, 15, 16, 17,
+	18, 19, 20, 21, 22, 23,
+	24, 25, 26, 27, 28, 29,
+	30, 31, 32, 33, 34, 35
+	};
+
+
+
+	unsigned int VBO, VAO, EBO;
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	glGenVertexArrays(1, &VAO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * mesh.indices.size(), &mesh.indices[0], GL_STATIC_DRAW);
+
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, 0, 8 * sizeof(float), (void*)0);
+
+	glEnableVertexAttribArray(0);
+
+
+
+
+	// light cube gen
+	unsigned int lightCubeVAO;
+	glGenVertexArrays(1, &lightCubeVAO);
+	glBindVertexArray(lightCubeVAO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, 0, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+
+
+
+
+
+
+
+	// render loop
+	// -----------
+	while (!glfwWindowShouldClose(window))
+	{
+		// input
+		// -----
+		processInput(window);
+		lightMove(window);
+
+		constexpr int instanceCount{ 10 };
+
+
+
+		float currentTime = glfwGetTime();
+
+		deltaTime = currentTime - lastTime;
+
+		lastTime = currentTime;
+
+
+		glClearColor(0.2, 0.2, 0.2, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		lightCubeShader.use();
+		lightCubeShader.setVec3("lightPos", lightPos);
+
+
+		glm::mat4 view = camera.getViewMatrix();
+		lightCubeShader.setMat4("view", view);
+
+
+
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 100.0f);
+		lightCubeShader.setMat4("projection", projection);
+
+		glm::mat4 model = glm::mat4(1.0f);
+		lightCubeShader.setMat4("model", model);
+
+		ourModel.Draw();
+
+		lamp.use();
+
+
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.3f));
+		lamp.setMat4("model", model);
+		lamp.setMat4("view", view);
+		lamp.setMat4("projection", projection);
+
+
+
+		glBindVertexArray(lightCubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteVertexArrays(1, &lightCubeVAO);
+	glDeleteBuffers(1, &VBO);
+
+	// glfw: terminate, clearing all previously allocated GLFW resources.
+	// ------------------------------------------------------------------
+	glfwTerminate();
+	return 0;
+}
+
+// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+// ---------------------------------------------------------------------------------------------------------
+
+void mouse_callback(GLFWwindow* window, double xPos, double yPos)
+{
+	if (firstMove) {
+		lastX = xPos;
+		lastY = yPos;
+		firstMove = false;
+	}
+	// offset - AMOUNT of movement in 1 flick
+	float xOffset = xPos - lastX;
+	float yOffset = lastY - yPos;
+	lastX = xPos;
+	lastY = yPos;
+
+	camera.processMouse(xOffset, yOffset);
+
+
+}
+void processInput(GLFWwindow* window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.processKeyboard(CameraMovement::forward, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.processKeyboard(CameraMovement::backward, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.processKeyboard(CameraMovement::left, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.processKeyboard(CameraMovement::right, deltaTime);
+
+}
+
+void lightMove(GLFWwindow* window)
+{
+	const float speed = 2.5 * deltaTime;
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+		lightPos.x -= speed;
+	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+		lightPos.x += speed;
+	}
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+		lightPos.z -= speed;
+	}
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+		lightPos.z += speed;
+	}
+}
+
+// glfw: whenever the window size changed (by OS or user resize) this callback function executes
+// ---------------------------------------------------------------------------------------------
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	// make sure the viewport matches the new window dimensions; note that width and 
+	// height will be significantly larger than specified on retina displays.
+	glViewport(0, 0, width, height);
+}
+
+unsigned int loadTexture(char const* path)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+
+	int width, height, nrChannels;
+
+	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+
+	if (data)
+	{
+		GLenum format;
+		if (nrChannels == 1)
+		{
+			format = GL_RED;
+		}
+		else if (nrChannels == 3)
+		{
+			format = GL_RGB;
+		}
+		else if (nrChannels == 4)
+		{
+			format = GL_RGBA;
+		}
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	}
+	else
+	{
+		std::cout << "Failed to load textures" << std::endl;
+	}
+	stbi_image_free(data);
+
+	return textureID;
+}

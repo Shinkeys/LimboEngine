@@ -1,0 +1,3 @@
+[submodule "LimboEngine/vendor/assimp"]
+	path = LimboEngine/vendor/assimp
+	url = https://github.com/assimp/assimp
