@@ -15,6 +15,7 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 
@@ -28,8 +29,14 @@ struct Vertex
 struct Material
 {
 	std::string name;
-	glm::vec3 ka;
-	glm::vec3 kd;
+	glm::vec3 ka{ 0,0,0 };
+	glm::vec3 kd{ 0,0,0 };
+	glm::vec3 ks{ 0,0,0 };
+	glm::vec3 ke{ 0,0,0 };
+	float ni{ 0 };
+	float d{ 0 };
+	std::vector<unsigned int> texturesId;
+	std::vector<std::string> textureTypes;
 };
 
 class Model
@@ -41,7 +48,8 @@ public:
 	Model(const std::string& path)
 	{
 		processMesh(path);
-		setupMesh(vert);
+		setupMesh();
+
 	}
 
 	void Draw(Shader& shader)
@@ -51,31 +59,29 @@ public:
 		unsigned int normalId = 1;
 
 		unsigned int roughnessId = 1;
-		
-		for (unsigned int i = 0; i < texturesId.size(); i++)
+		for (unsigned int i = 0; i < material.texturesId.size(); i++)
 		{
 			glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
 			// retrieve texture number (the N in diffuse_textureN)
 			std::string number;
-			std::string name = textureName[i];
-			if (name == "texture_diffuse")
-				number = std::to_string(diffuseId++);
-			else if (name == "texture_specular")
-				number = std::to_string(specularId++); // transfer unsigned int to string
-			else if (name == "texture_roughness")
-				number = std::to_string(roughnessId++); 
-			else if (name == "texture_normal")
-				number = std::to_string(normalId++);
-
+			std::string name = material.textureTypes[i];
+				if (name == "texture_diffuse")
+					number = std::to_string(diffuseId++);
+				else if (name == "texture_specular")
+					number = std::to_string(specularId++); // transfer unsigned int to string
+				else if (name == "texture_roughness")
+					number = std::to_string(roughnessId++);
+				else if (name == "texture_normal")
+						number = std::to_string(normalId++);
 			// now set the sampler to the correct texture unit
 			glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
 			// and finally bind the texture
-			glBindTexture(GL_TEXTURE_2D, texturesId[i]);
+			glBindTexture(GL_TEXTURE_2D, material.texturesId[i]);
 		}
 
 		glBindVertexArray(VAO);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawElements(GL_TRIANGLES, vertexInd.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, basicMeshIndices.size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 	} 
@@ -85,17 +91,16 @@ public:
 private:
 	// processing data from the obj file
 	Vertex vert;
+	Material material;
 	std::vector<Vertex> outVertices;
-	std::vector<unsigned int> vertexInd, uvInd, normalInd;
-
+	std::vector<unsigned int> basicMeshIndices;
+	std::string currentMaterial;
 	// textures loading
-	std::string textureFile;
-	std::vector<std::string> textureName;
-	std::vector<unsigned int> texturesId;
-	unsigned int index{ 0 };
+	std::string textureFile; // stores name of mtl file
+
 	unsigned int VBO, EBO;
 
-	void setupMesh(const Vertex& vert)
+	void setupMesh()
 	{
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
@@ -107,7 +112,7 @@ private:
 		glBufferData(GL_ARRAY_BUFFER, outVertices.size() * sizeof(Vertex), &outVertices[0], GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexInd.size() * sizeof(unsigned int), &vertexInd[0], GL_STATIC_DRAW); // to do
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, basicMeshIndices.size() * sizeof(unsigned int), &basicMeshIndices[0], GL_STATIC_DRAW); // to do
 
 		
 	
@@ -140,6 +145,12 @@ private:
 		std::string line;
 		while (myFile.peek() != EOF) {
 			std::getline(myFile, line);
+			if (line.starts_with("mtllib"))
+			{
+				std::istringstream lineStream(line.substr(7));
+
+				lineStream >> textureFile;
+			} // reading mtl name for textures
 			if (line.starts_with("v"))
 			{
 				glm::vec3 vertex;
@@ -166,6 +177,13 @@ private:
 				tempNormal.emplace_back(normals);
 
 			}
+			if (line.starts_with("usemtl"))
+			{
+				std::istringstream lineStream(line.substr(7));
+				std::string mtlName;
+				lineStream >> mtlName;
+				currentMaterial = mtlName;
+			}
 			if (line.starts_with("f"))
 			{
 				unsigned int vertex[3], uv[3], normal[3];
@@ -185,22 +203,14 @@ private:
 					outVertices.emplace_back(vert);
 				}
 			}
-			if (line.starts_with("mtllib"))
-			{
-				std::istringstream lineStream(line.substr(6));
 
-				lineStream >> textureFile;
-			} // reading mtl name for textures
 		}
 
-
+		processTextures();
 		for (unsigned int i = 0; i < outVertices.size(); ++i)
 		{
-			vertexInd.emplace_back(i);
+			basicMeshIndices.emplace_back(i);
 		} // adding indices of elements to for EBO
-
-		processTextures();
-
 
 		myFile.close();
 	}
@@ -215,8 +225,6 @@ private:
 			return;
 		}
 		std::string line;
-		Material material;
-		std::string textureNameEntry;
 		while (myFile.peek() != EOF) {
 			std::getline(myFile, line);
 			if (line.starts_with("newmtl"))
@@ -234,61 +242,58 @@ private:
 				std::istringstream lineStream(line.substr(3));
 				lineStream >> material.kd.x >> material.kd.y >> material.kd.z;
 			}
-			if (line.starts_with("map_Kd"))
+			if (line.starts_with("Ks"))
 			{
-				std::istringstream lineStream(line.substr(7));
-				lineStream >> textureNameEntry;
-				textureName.emplace_back(textureNameEntry);
-				texturesId.emplace_back(getTextureFromFile(textureName[index++]));
+				std::istringstream lineStream(line.substr(3));
+				lineStream >> material.ks.x >> material.ks.y >> material.ks.z;
 			}
-			if (line.starts_with("map_Ks"))
+			if (line.starts_with("Ke"))
 			{
-				std::istringstream lineStream(line.substr(7));
-				lineStream >> textureNameEntry;
-				textureName.push_back(textureNameEntry);
-				texturesId.emplace_back(getTextureFromFile(textureName[index++]));
+				std::istringstream lineStream(line.substr(3));
+				lineStream >> material.ke.x >> material.ke.y >> material.ke.z;
 			}
-			if (line.starts_with("map_Ns"))
+			if (line.starts_with("Ni"))
 			{
-				std::istringstream lineStream(line.substr(7));
-				lineStream >> textureNameEntry;
-				textureName.emplace_back(textureNameEntry);
-				texturesId.emplace_back(getTextureFromFile(textureName[index++]));
+				std::istringstream lineStream(line.substr(3));
+				lineStream >> material.ni;
 			}
-			if (line.starts_with("bump"))
+			if (line.starts_with("d"))
 			{
-				std::istringstream lineStream(line.substr(5));
-				lineStream >> textureNameEntry;
-				textureName.emplace_back(textureNameEntry);
-				texturesId.emplace_back(getTextureFromFile(textureName[index++]));
+				std::istringstream lineStream(line.substr(2));
+				lineStream >> material.d;
 			}
-			if (line.starts_with("map_Ao"))
-			{
-				std::istringstream lineStream(line.substr(7));
-				lineStream >> textureNameEntry;
-				textureName.emplace_back(textureNameEntry);
-				texturesId.emplace_back(getTextureFromFile(textureName[index++]));
-			}
-			if (line.starts_with("map_Pr"))
-			{
-				std::istringstream lineStream(line.substr(7));
-				lineStream >> textureNameEntry;
-				textureName.emplace_back(textureNameEntry);
-				texturesId.emplace_back(getTextureFromFile(textureName[index++]));
-			}
-
+			// adding data about texture(filename, type of texture for shader later on)
+			processTextureLine(line, "map_Kd", "texture_diffuse");
+			processTextureLine(line, "map_Ks", "texture_specular");
+			processTextureLine(line, "map_bump", "texture_normal");
+			processTextureLine(line, "map_Pr", "texture_roughness");
+			/*processTextureLine(line, "map_Ns", "texture_shininess");*/
+			/*processTextureLine(line, "map_Ka", "texture_ao");*/
 		}
+
 		myFile.close();
 	}
 
+	void processTextureLine(const std::string& line, const std::string& prefix, const std::string& textureTypeName)
+	{
+		if (line.starts_with(prefix))
+		{
+			std::istringstream lineStream(line.substr(prefix.size() + 1));
+			std::string textureNameEntry;
+			lineStream >> textureNameEntry;
+			material.texturesId.emplace_back(getTextureFromFile(textureNameEntry));
+			material.textureTypes.emplace_back(textureTypeName); //  emplacing it, to send it later to the shader in Draw()
+			
+		}
+	}
 
 	unsigned int getTextureFromFile(const std::string& path)
 	{
-		std::string pathToTextures = std::string(path);
+		std::string pathToTextures = path;
 		//std::size_t found = pathToTextures.find_last_of("/");
 		//pathToTextures.erase(found); // remove filename from path. Doesn't need for now !!!!!
 		pathToTextures = "resources/objects/textures/" + pathToTextures;
-		std::cout << pathToTextures << " ";
+		std::cout << pathToTextures << "\n";
 		unsigned int textureID;
 		glGenTextures(1, &textureID);
 

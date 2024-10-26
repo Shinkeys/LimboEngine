@@ -101,7 +101,7 @@ int main() {
 
 	Shader lamp("shaders/lamp.vert", "shaders/lamp.frag");
 	Shader lightCubeShader("shaders/lightCube.vert", "shaders/lightCube.frag");
-	Model ourModel("resources/objects/airgun03.obj");
+	Model ourModel("resources/objects/christmastree.obj");
 
 	Meshes mesh;
 

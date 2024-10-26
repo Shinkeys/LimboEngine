@@ -1,12 +1,12 @@
 #version 460 core
 out vec4 FragColor;
 
-
-uniform sampler2D texture_diffuse1;
-uniform sampler2D texture_specular1;
-uniform sampler2D texture_normal1;
-uniform sampler2D texture_roughness1;
-
+struct Material{
+	sampler2D texture_diffuse1;
+	sampler2D texture_normal1;
+	sampler2D texture_roughness1;
+	sampler2D texture_specular1;
+};
 
 
 in vec2 TexCoords;
@@ -14,10 +14,11 @@ in vec3 Normal;
 in vec3 FragPos;
 in vec3 LightPos;
 
+uniform Material material;
 void main()
 {
-	vec3 diffuse = texture(texture_diffuse1, TexCoords).rgb;
-	vec3 specular = texture(texture_specular1, TexCoords).rgb;
+	vec3 diffuse = texture(material.texture_diffuse1, TexCoords).rgb;
+	vec3 specular = texture(material.texture_specular1, TexCoords).rgb;
 
 
 	vec3 normalMap = normalize(Normal);
@@ -28,7 +29,7 @@ void main()
 	float diff = max(dot(norm, lightDir), 0.0);
 
 
-	float roughness = texture(texture_roughness1, TexCoords).r;
+	float roughness = texture(material.texture_roughness1, TexCoords).r;
 
 	vec3 viewDir = normalize(-FragPos);
 	vec3 reflectDir = reflect(-lightDir, norm);
