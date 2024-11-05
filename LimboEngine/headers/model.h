@@ -19,6 +19,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <unordered_map>
+
 struct Vertex
 {
 	glm::vec3 Vert;
@@ -28,15 +30,16 @@ struct Vertex
 
 struct Material
 {
-	std::string name;
+	std::vector<std::string> textureTypes;
+	std::vector<std::string> textureFileNames;
+	std::vector<unsigned int> texturesId;
 	glm::vec3 ka{ 0,0,0 };
 	glm::vec3 kd{ 0,0,0 };
 	glm::vec3 ks{ 0,0,0 };
 	glm::vec3 ke{ 0,0,0 };
+	std::string name{ "" };
 	float ni{ 0 };
 	float d{ 0 };
-	std::vector<unsigned int> texturesId;
-	std::vector<std::string> textureTypes;
 };
 
 class Model
@@ -57,22 +60,22 @@ public:
 		unsigned int diffuseId = 1;
 		unsigned int specularId = 1;
 		unsigned int normalId = 1;
-
 		unsigned int roughnessId = 1;
+
 		for (unsigned int i = 0; i < material.texturesId.size(); i++)
 		{
 			glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
 			// retrieve texture number (the N in diffuse_textureN)
 			std::string number;
 			std::string name = material.textureTypes[i];
-				if (name == "texture_diffuse")
-					number = std::to_string(diffuseId++);
-				else if (name == "texture_specular")
-					number = std::to_string(specularId++); // transfer unsigned int to string
-				else if (name == "texture_roughness")
-					number = std::to_string(roughnessId++);
-				else if (name == "texture_normal")
-						number = std::to_string(normalId++);
+			if (name == "texture_diffuse")
+				number = std::to_string(diffuseId++);
+			else if (name == "texture_specular")
+				number = std::to_string(specularId++); // transfer unsigned int to string
+			else if (name == "texture_roughness")
+				number = std::to_string(roughnessId++);
+			else if (name == "texture_normal")
+				number = std::to_string(normalId++);
 			// now set the sampler to the correct texture unit
 			glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
 			// and finally bind the texture
@@ -84,17 +87,18 @@ public:
 		glDrawElements(GL_TRIANGLES, basicMeshIndices.size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
-	} 
-	
-	
+	}
+
+
 
 private:
 	// processing data from the obj file
 	Vertex vert;
 	Material material;
+	std::vector<Material> outMaterial;
 	std::vector<Vertex> outVertices;
 	std::vector<unsigned int> basicMeshIndices;
-	std::string currentMaterial;
+	std::vector<std::string> currentMaterial;
 	// textures loading
 	std::string textureFile; // stores name of mtl file
 
@@ -114,8 +118,8 @@ private:
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, basicMeshIndices.size() * sizeof(unsigned int), &basicMeshIndices[0], GL_STATIC_DRAW); // to do
 
-		
-	
+
+
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
@@ -125,7 +129,7 @@ private:
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Uv));
 
-		
+
 
 		glBindVertexArray(0);
 
@@ -143,6 +147,13 @@ private:
 		std::vector<glm::vec2> tempUvs;
 		std::vector<glm::vec3> tempNormal; // storing all the data before pushing it to the main vector
 		std::string line;
+
+		tempVertices.reserve(5000);
+		tempNormal.reserve(5000);
+		tempUvs.reserve(5000);
+
+
+		currentMaterial.reserve(5);
 		while (myFile.peek() != EOF) {
 			std::getline(myFile, line);
 			if (line.starts_with("mtllib"))
@@ -151,13 +162,13 @@ private:
 
 				lineStream >> textureFile;
 			} // reading mtl name for textures
-			if (line.starts_with("v"))
+			if (line.starts_with("v") && line[1] == ' ')
 			{
 				glm::vec3 vertex;
 				std::istringstream lineStream(line.substr(2));
 				lineStream >> vertex.x >> vertex.y >> vertex.z;
 
-				tempVertices.emplace_back(vertex);
+				tempVertices.push_back(vertex);
 			}
 			if (line.starts_with("vt"))
 			{
@@ -166,15 +177,15 @@ private:
 
 				lineStream >> uv.x >> uv.y;
 
-				tempUvs.emplace_back(uv);
+				tempUvs.push_back(uv);
 			}
 			if (line.starts_with("vn"))
-			{	
+			{
 				glm::vec3 normals;
 				std::istringstream lineStream(line.substr(3));
 
 				lineStream >> normals.x >> normals.y >> normals.z;
-				tempNormal.emplace_back(normals);
+				tempNormal.push_back(normals);
 
 			}
 			if (line.starts_with("usemtl"))
@@ -182,7 +193,8 @@ private:
 				std::istringstream lineStream(line.substr(7));
 				std::string mtlName;
 				lineStream >> mtlName;
-				currentMaterial = mtlName;
+
+				currentMaterial.push_back(mtlName);
 			}
 			if (line.starts_with("f"))
 			{
@@ -200,7 +212,7 @@ private:
 					vert.Uv = tempUvs[uv[i] - 1];
 					//// adding texture coords
 
-					outVertices.emplace_back(vert);
+					outVertices.push_back(vert);
 				}
 			}
 
@@ -209,12 +221,12 @@ private:
 		processTextures();
 		for (unsigned int i = 0; i < outVertices.size(); ++i)
 		{
-			basicMeshIndices.emplace_back(i);
+			basicMeshIndices.push_back(i);
 		} // adding indices of elements to for EBO
 
 		myFile.close();
 	}
-	
+
 
 	void processTextures()
 	{
@@ -232,6 +244,7 @@ private:
 				std::istringstream lineStream(line.substr(7));
 				lineStream >> material.name;
 			}
+			
 			if (line.starts_with("Ka"))
 			{
 				std::istringstream lineStream(line.substr(3));
@@ -261,16 +274,42 @@ private:
 			{
 				std::istringstream lineStream(line.substr(2));
 				lineStream >> material.d;
+
+			}
+			if (line.starts_with("map_Kd"))
+			{
+				processTextureLine(line, "map_Kd", "texture_diffuse");
+			}
+			if (line.starts_with("map_Ks"))
+			{
+				processTextureLine(line, "map_Ks", "texture_specular");
+
+			}
+			if (line.starts_with("map_bump"))
+			{
+				processTextureLine(line, "map_bump", "texture_normal");
+
+			}
+			if (line.starts_with("map_d"))
+			{
+				processTextureLine(line, "map_d", "texture_roughness");
+				if (material.name != "")
+				{
+					outMaterial.push_back(material);
+				}
 			}
 			// adding data about texture(filename, type of texture for shader later on)
-			processTextureLine(line, "map_Kd", "texture_diffuse");
-			processTextureLine(line, "map_Ks", "texture_specular");
-			processTextureLine(line, "map_bump", "texture_normal");
-			processTextureLine(line, "map_Pr", "texture_roughness");
-			/*processTextureLine(line, "map_Ns", "texture_shininess");*/
-			/*processTextureLine(line, "map_Ka", "texture_ao");*/
+			
+		}
+		for (const auto& x : outMaterial)
+		{
+			for (const auto& y : x.textureFileNames)
+			{
+				std::cout << y << " ";
+			}
 		}
 
+		
 		myFile.close();
 	}
 
@@ -282,8 +321,8 @@ private:
 			std::string textureNameEntry;
 			lineStream >> textureNameEntry;
 			material.texturesId.emplace_back(getTextureFromFile(textureNameEntry));
-			material.textureTypes.emplace_back(textureTypeName); //  emplacing it, to send it later to the shader in Draw()
-			
+			material.textureTypes.push_back(textureTypeName); //  emplacing it, to send it later to the shader in Draw()
+			material.textureFileNames.push_back(prefix + " " + textureNameEntry); // pushing texture files name to use it later for shader
 		}
 	}
 
@@ -334,7 +373,7 @@ private:
 		stbi_image_free(data);
 		return textureID;
 	}
-	
+
 	const std::string pathToTheFile()
 	{
 		return "resources/objects/" + textureFile;

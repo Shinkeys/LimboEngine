@@ -12,6 +12,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../headers/stb_image.h"
 
+//#include "../headers/math.h"
+
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -101,7 +104,7 @@ int main() {
 
 	Shader lamp("shaders/lamp.vert", "shaders/lamp.frag");
 	Shader lightCubeShader("shaders/lightCube.vert", "shaders/lightCube.frag");
-	Model ourModel("resources/objects/christmastree.obj");
+	Model ourModel("resources/objects/gun.obj");
 
 	Meshes mesh;
 
