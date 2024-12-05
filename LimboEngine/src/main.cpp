@@ -239,7 +239,7 @@ int main() {
 		glm::mat4 model = glm::mat4(1.0f);
 		lightCubeShader.setMat4("model", model);
 
-		dModel.Draw();
+		dModel.Draw(lightCubeShader);
 
 		lamp.use();
 

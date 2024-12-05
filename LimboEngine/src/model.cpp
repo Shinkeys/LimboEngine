@@ -16,6 +16,7 @@ bool Model::loadModel(const char* path)
 
 	std::string line;
 
+	
 
 	bool checkForFirstUseMtlEntry{ false };
 	while (true)
@@ -117,21 +118,21 @@ bool Model::loadModel(const char* path)
 		fillMapWithKeysToDraw();
 	}
 
+	std::size_t sizeToReserve = m_vertexIndices.size() + m_textureIndices.size() + m_normalIndices.size();
+	meshData.reserve(sizeToReserve);
 
-	m_outVertices.reserve(m_vertexIndices.size());
-	m_outTextures.reserve(m_textureIndices.size());
-	m_outNormal.reserve(m_normalIndices.size());
-
+	MeshData tempMeshData;
 	for (unsigned int i = 0; i < m_vertexIndices.size(); ++i)
 	{
 		unsigned int vertexIndex = m_vertexIndices[i];
 		unsigned int textureIndex = m_textureIndices[i];
 		unsigned int normalIndex = m_normalIndices[i];
 		
+		tempMeshData.vertices = tempVertices[vertexIndex - 1];
+		tempMeshData.textures = tempTextures[textureIndex - 1];
+		tempMeshData.normal = tempNormal[normalIndex - 1];
 
-		m_outVertices.push_back(tempVertices[vertexIndex - 1]);
-		m_outTextures.push_back(tempTextures[textureIndex - 1]);
-		m_outNormal.push_back(tempNormal[normalIndex - 1]);
+		meshData.push_back(tempMeshData);
 
 		m_outVertexIndices.push_back(i);
 	}
@@ -235,8 +236,8 @@ bool Model::proceedMtlFile(const std::string&  fileName)
 		}
 		else
 		{
-			m_materialsValues.push_back(tempMaterialsData);
-			m_materialsPicturesFilesFromMtl[tempMaterialName] = tempMaterialsPicFilesData;
+			m_materialsValues[tempMaterialName] = tempMaterialsData;
+			m_materialsPicturesFilesFromMtlData[tempMaterialName] = tempMaterialsPicFilesData;
 		}
 	}
 
@@ -244,7 +245,8 @@ bool Model::proceedMtlFile(const std::string&  fileName)
 
 unsigned int loadTextureFromFile(std::string& fileName)
 {
-	std::string pathToOpen = "../LimboEngine/Resources/objects/textures" + fileName;
+	std::string pathToOpen = "../LimboEngine/Resources/objects/textures/" + fileName;
+	std::cout << "Texture: " << fileName << '\n';
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 

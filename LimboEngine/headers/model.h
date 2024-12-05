@@ -18,7 +18,12 @@
 
 
 
-
+struct MeshData
+{
+	glm::vec3 vertices{};
+	glm::vec2 textures{};
+	glm::vec3 normal{};
+};
 
 
 struct MaterialsData
@@ -47,22 +52,22 @@ private:
 	
 public:
 	// mesh data
-	std::vector<glm::vec2> m_outTextures;
-	std::vector<glm::vec3> m_outVertices, m_outNormal;
+	std::vector<MeshData> meshData;
+
 	std::vector<unsigned int> m_vertexIndices, m_textureIndices, m_normalIndices;
 	std::vector<unsigned int> m_outVertexIndices;
 
 	// textures
 	std::size_t indexToDrawPart;
-	std::unordered_map<std::size_t, std::string> m_usemtlName;
+	std::unordered_map<std::size_t, std::string> m_usemtlName;	
 	std::vector<std::string> m_usemtlLastName;
 	std::vector<std::string> m_mtlFileName;
-	std::vector<MaterialsData> m_materialsValues;
+	std::unordered_map<std::string, MaterialsData> m_materialsValues;
 	void fillMapWithKeysToDraw();
 	bool proceedMtlFile(const std::string& fileName);
 
 
-	std::unordered_map<std::string, MaterialsPicturesData> m_materialsPicturesFilesFromMtl;
+	std::unordered_map<std::string, MaterialsPicturesData> m_materialsPicturesFilesFromMtlData;
 
 
 

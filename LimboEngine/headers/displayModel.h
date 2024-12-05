@@ -5,7 +5,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-
+#include "../headers/shader.h"
 #include "../headers/model.h"
 
 class DisplayModel
@@ -21,7 +21,7 @@ public:
 		setupOpenGLMeshData(model.m_vertexIndices.size());
 	}
 	
-	void Draw();
+	void Draw(Shader& shader);
 };
 
 
