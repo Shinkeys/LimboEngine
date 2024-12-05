@@ -20,6 +20,11 @@ const float g_pitch{ 0.0f };
 const float g_sensitivity{ 0.1f };
 const float g_speed{ 2.5f };
 
+
+bool cursorState;
+
+
+
 class Camera
 {
 public:
@@ -78,7 +83,17 @@ public:
 		{
 			Position += Right * velocity;
 		}
-		/*Position.y = 0.0f;*/
+		if (!cursorState)
+		{
+			Position.y = 0.0f;
+		}
+		if (cursorState)
+		{
+			Position.x = -2.0f;
+			Position.y = 3.0f;
+			Position.z = 7.0f;
+
+		}
 	}
 
 	void processMouse(float xOffset, float yOffset, GLboolean constraintPitch = true)
@@ -93,11 +108,11 @@ public:
 		{
 			if (Pitch > 89.0f) { Pitch = 89.0f; }
 			if (Pitch < -89.0f) { Pitch = -89.0f; }
-			
+
 		}
 		updateCamVectors();
-		
 	}
+
 
 private:
 	void updateCamVectors()

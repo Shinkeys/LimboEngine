@@ -4,6 +4,7 @@
 #include "../headers/shader.h"
 #include "../headers/camera.h"
 #include "../headers/model.h"
+#include "../headers/displayModel.h"
 
 #include <glm/gtc/matrix_transform.hpp> 
 #include <glm/glm.hpp>
@@ -25,29 +26,20 @@ struct Meshes {
 };
 
 
-
-
+void processInputMode_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xPos, double yPos);
 void lightMove(GLFWwindow* window);
 void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity,
 	GLsizei length, const char* message, const void* userParam);
-unsigned int loadTexture(char const* path);
+//unsigned int loadTexture(char const* path);
 
 // settings
 const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 
-glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 camTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 
-glm::vec3 camDirection = glm::normalize(camPos - camTarget);
-
-glm::vec3 camRight = glm::normalize(glm::cross(up, camDirection));
-
-glm::vec3 camFront = glm::vec3(0.0f, 0.0f, -1.0f);
 
 // movement
 float deltaTime{ 0.0f };
@@ -62,6 +54,9 @@ float lastY{ SCR_HEIGHT / 2.0f };
 
 glm::vec3 lightPos = glm::vec3(0.0f, 1.0f, 3.0f);
 
+
+// cursor
+extern bool cursorState{ false };
 
 int main() {
 	// glfw: initialize and configure
@@ -87,9 +82,10 @@ int main() {
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetKeyCallback(window, processInputMode_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
+	
 
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -104,7 +100,8 @@ int main() {
 
 	Shader lamp("shaders/lamp.vert", "shaders/lamp.frag");
 	Shader lightCubeShader("shaders/lightCube.vert", "shaders/lightCube.frag");
-	Model ourModel("resources/objects/gun.obj");
+	DisplayModel dModel("../LimboEngine/Resources/objects/bebep.obj");
+	
 
 	Meshes mesh;
 
@@ -206,7 +203,6 @@ int main() {
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 	}
 
-
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -216,18 +212,16 @@ int main() {
 		processInput(window);
 		lightMove(window);
 
-		constexpr int instanceCount{ 10 };
 
 
-
-		float currentTime = glfwGetTime();
+		float currentTime = (float)glfwGetTime();
 
 		deltaTime = currentTime - lastTime;
 
 		lastTime = currentTime;
 
 
-		glClearColor(0.2, 0.2, 0.2, 1.0);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		lightCubeShader.use();
@@ -245,7 +239,7 @@ int main() {
 		glm::mat4 model = glm::mat4(1.0f);
 		lightCubeShader.setMat4("model", model);
 
-		ourModel.Draw(lightCubeShader);
+		dModel.Draw();
 
 		lamp.use();
 
@@ -307,13 +301,16 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		camera.processKeyboard(CameraMovement::left, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.processKeyboard(CameraMovement::right, deltaTime);
+		camera.processKeyboard(CameraMovement::right, deltaTime); 
+	
+	
 
+	
 }
 
 void lightMove(GLFWwindow* window)
 {
-	const float speed = 2.5 * deltaTime;
+	const float speed = 2.5f * deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 		lightPos.x -= speed;
 	}
@@ -325,6 +322,24 @@ void lightMove(GLFWwindow* window)
 	}
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		lightPos.z += speed;
+	}
+}
+
+void processInputMode_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS)
+	{
+		cursorState = !cursorState;
+	}
+
+
+	if (cursorState)
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+	}
+	else
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 }
 

@@ -1,6 +1,8 @@
 # Blender 4.2.3 LTS MTL File: 'ad1be740d7ec4761ab57ea20315fc887.blend'
 # www.blender.org
 
+# Material with diffuse, emission, AO, and normal maps
+
 newmtl Material
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
@@ -10,6 +12,12 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
+map_Kd dif_optimised.jpeg          # Diffuse texture
+map_Ke emit.jpg                     # Emission texture
+map_Ka internal_ground_ao_texture.jpeg # Ambient Occlusion (AO) texture
+map_Bump normal_optimised.jpeg      # Normal map texture
+
+# Second material definition
 
 newmtl zuk
 Ns 250.000000
@@ -20,3 +28,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
+map_Kd 694d55c305ce4e4f91d45507db270e77.jpeg # Diffuse texture for 'zuk'

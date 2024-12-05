@@ -25,15 +25,15 @@ void main()
     normalMap = normalize(normalMap * 2.0 - 1.0);
     vec3 norm = normalize(normalMap);
 
-	vec3 lightDir = normalize(LightPos - FragPos);
-	float diff = max(dot(norm, lightDir), 0.0);
+	vec3 lightDir = normalize(FragPos - LightPos);
+	float diff = max(dot(norm, -lightDir), 0.0);
 
 
-	float roughness = texture(material.texture_roughness1, TexCoords).r;
+	//float roughness = texture(material.texture_roughness1, TexCoords).r;
 
 	vec3 viewDir = normalize(-FragPos);
 	vec3 reflectDir = reflect(-lightDir, norm);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64 * (1.0 - roughness));
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64); //* (1.0 - roughness)//
 
 
 
