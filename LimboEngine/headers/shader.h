@@ -53,26 +53,24 @@ Shader(const char* vertexPath, const char* fragmentPath)
 	unsigned int vertex, fragment;
 	int success;
 	char infoLog[512];
-
 	//vertex shader
 	vertex = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex, 1, &vShaderCode, NULL);
 	glCompileShader(vertex);
 
-	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
+	glGetShaderiv(vertex, GL_LINK_STATUS, &success);
 	if (!success)
 	{
 		glGetShaderInfoLog(vertex, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
-
 	//fragment shader
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragment, 1, &fShaderCode, NULL);
 	glCompileShader(fragment);
 
-	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
+	glGetShaderiv(fragment, GL_LINK_STATUS, &success);
 	if (!success)
 	{
 		glGetShaderInfoLog(fragment, 512, NULL, infoLog);
@@ -85,7 +83,7 @@ Shader(const char* vertexPath, const char* fragmentPath)
 	glAttachShader(ID, fragment);
 	glLinkProgram(ID);
 
-	glGetProgramiv(ID, GL_COMPILE_STATUS, &success);
+	glGetProgramiv(ID, GL_LINK_STATUS, &success);
 	if(!success)
 	{
 		glGetProgramInfoLog(ID, 512, NULL, infoLog);

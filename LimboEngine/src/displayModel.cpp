@@ -33,38 +33,40 @@ void DisplayModel::setupOpenGLMeshData(std::size_t indicesToDraw)
 
 void DisplayModel::Draw(Shader& shader)
 {
+	
 	unsigned int i = 0;
 	unsigned int diffuseNr = 1;
 	unsigned int emissionNr = 1;
 	unsigned int normalNr = 1;
+	unsigned int offset = 0;
+	std::string name;
 	for (const auto& x : model.m_usemtlName)
 	{
-		glActiveTexture(GL_TEXTURE0 + i);
-		std::string name = "texture_diffuse";
-		glUniform1i(glGetUniformLocation(shader.ID, (name + std::to_string(diffuseNr++)).c_str()), i);
-		glBindTexture(GL_TEXTURE_2D, model.m_materialsPicturesFilesFromMtlData[x.second].diffuseMap);
-		++i;
+	
+		if (model.m_materialsPicturesFilesFromMtlData[x.second].diffuseMap) {
+			name = "material.texture_diffuse";
+			glUniform1i(glGetUniformLocation(shader.ID, (name + std::to_string(diffuseNr)).c_str()), i);
+			glBindTextureUnit(i, model.m_materialsPicturesFilesFromMtlData[x.second].diffuseMap);
+			++i;
+			++diffuseNr;
+		}
+		if (model.m_materialsPicturesFilesFromMtlData[x.second].normalMap)
+		{
+			name = "material.texture_normal";
+			glUniform1i(glGetUniformLocation(shader.ID, (name + std::to_string(normalNr)).c_str()), i);
+			glBindTextureUnit(i, model.m_materialsPicturesFilesFromMtlData[x.second].normalMap);
+			++i;
+			++normalNr;
+		}
 
-		glActiveTexture(GL_TEXTURE0 + i);
-		name = "texture_normal";
-		glUniform1i(glGetUniformLocation(shader.ID, (name + std::to_string(normalNr++)).c_str()), i);
-		glBindTexture(GL_TEXTURE_2D, model.m_materialsPicturesFilesFromMtlData[x.second].normalMap);
-		++i;
-		/*std::string name = "texture_diffuse";
-		glUniform1i(glGetUniformLocation(shader.ID, (name + std::to_string(diffuseNr)).c_str()), i);*/
-
-
-
-
-
-
-
-
-
+		
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, (GLsizei)model.m_outVertexIndices.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, model.m_outVertexIndices.size(), GL_UNSIGNED_INT, (void*)(offset * sizeof(unsigned int)));
 		//glDrawArrays(GL_TRIANGLES, 0, model.m_outVertices.size());
 		glBindVertexArray(0);
 
+		offset += (unsigned int)x.first;
 	}
 }
+		/*std::string name = "texture_diffuse";
+		glUniform1i(glGetUniformLocation(shader.ID, (name + std::to_string(diffuseNr)).c_str()), i);*/

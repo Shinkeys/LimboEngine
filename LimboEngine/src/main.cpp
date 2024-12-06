@@ -97,12 +97,10 @@ int main() {
 
 	glEnable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
-
 	Shader lamp("shaders/lamp.vert", "shaders/lamp.frag");
 	Shader lightCubeShader("shaders/lightCube.vert", "shaders/lightCube.frag");
-	DisplayModel dModel("../LimboEngine/Resources/objects/bebep.obj");
+	DisplayModel dModel("../LimboEngine/Resources/objects/viking.obj");
 	
-
 	Meshes mesh;
 
 	float vertices[] = {
@@ -238,7 +236,6 @@ int main() {
 
 		glm::mat4 model = glm::mat4(1.0f);
 		lightCubeShader.setMat4("model", model);
-
 		dModel.Draw(lightCubeShader);
 
 		lamp.use();

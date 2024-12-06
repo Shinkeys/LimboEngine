@@ -173,6 +173,8 @@ bool Model::proceedMtlFile(const std::string&  fileName)
 		if (strcmp(lineHeader, "newmtl") == 0)
 		{
 			iss >> tempMaterialName;
+
+			
 		}
 		else if (strcmp(lineHeader, "Ns") == 0)
 		{
@@ -238,9 +240,9 @@ bool Model::proceedMtlFile(const std::string&  fileName)
 		{
 			m_materialsValues[tempMaterialName] = tempMaterialsData;
 			m_materialsPicturesFilesFromMtlData[tempMaterialName] = tempMaterialsPicFilesData;
+			std::cout << "Proceed mtl file data: " << m_materialsPicturesFilesFromMtlData[tempMaterialName].diffuseMap << '\n';
 		}
 	}
-
 }
 
 unsigned int loadTextureFromFile(std::string& fileName)
@@ -252,11 +254,11 @@ unsigned int loadTextureFromFile(std::string& fileName)
 
 	int width, height, nrChannels;
 	unsigned char* data = stbi_load(pathToOpen.c_str(), &width, &height, &nrChannels, 0);
-
+	int format = nrChannels == 4 ? GL_RGBA : GL_RGB;
 	if (data)
 	{
 		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 
