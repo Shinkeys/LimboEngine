@@ -15,6 +15,7 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
+#include <map>
 
 
 
@@ -59,15 +60,14 @@ public:
 
 	// textures
 	std::size_t indexToDrawPart;
-	std::unordered_map<std::size_t, std::string> m_usemtlName;	
-	std::vector<std::string> m_usemtlLastName;
+	std::map<std::size_t, std::string> m_usemtlName;	
+	std::string m_usemtlLastName;
 	std::vector<std::string> m_mtlFileName;
-	std::unordered_map<std::string, MaterialsData> m_materialsValues;
+	std::map<std::string, MaterialsData> m_materialsValues;
 	void fillMapWithKeysToDraw();
 	bool proceedMtlFile(const std::string& fileName);
 
-
-	std::unordered_map<std::string, MaterialsPicturesData> m_materialsPicturesFilesFromMtlData;
+	std::map<std::string, MaterialsPicturesData> m_materialsPicturesFilesFromMtlData;
 
 
 

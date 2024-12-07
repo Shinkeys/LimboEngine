@@ -33,39 +33,40 @@ void DisplayModel::setupOpenGLMeshData(std::size_t indicesToDraw)
 
 void DisplayModel::Draw(Shader& shader)
 {
-	
-	unsigned int i = 0;
 	unsigned int diffuseNr = 1;
 	unsigned int emissionNr = 1;
 	unsigned int normalNr = 1;
 	unsigned int offset = 0;
+	unsigned int i = 0;
 	std::string name;
 	for (const auto& x : model.m_usemtlName)
 	{
-	
+		std::cout << "DiffuseMap ID: " << model.m_materialsPicturesFilesFromMtlData[x.second].diffuseMap << "\n";
+		std::cout << "NormalMap ID: " << model.m_materialsPicturesFilesFromMtlData[x.second].normalMap << "\n";
+
 		if (model.m_materialsPicturesFilesFromMtlData[x.second].diffuseMap) {
-			name = "material.texture_diffuse";
-			glUniform1i(glGetUniformLocation(shader.ID, (name + std::to_string(diffuseNr)).c_str()), i);
+			name = "material.texture_diffuse1";
+			glUniform1i(glGetUniformLocation(shader.ID, name.c_str()), i);
 			glBindTextureUnit(i, model.m_materialsPicturesFilesFromMtlData[x.second].diffuseMap);
-			++i;
 			++diffuseNr;
+			++i;
 		}
-		if (model.m_materialsPicturesFilesFromMtlData[x.second].normalMap)
+		/*if (model.m_materialsPicturesFilesFromMtlData[x.second].normalMap)
 		{
-			name = "material.texture_normal";
-			glUniform1i(glGetUniformLocation(shader.ID, (name + std::to_string(normalNr)).c_str()), i);
+			name = "material.texture_normal1";
+			glUniform1i(glGetUniformLocation(shader.ID, name.c_str()), i);
 			glBindTextureUnit(i, model.m_materialsPicturesFilesFromMtlData[x.second].normalMap);
 			++i;
-			++normalNr;
-		}
+		}*/
 
-		
+	
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, model.m_outVertexIndices.size(), GL_UNSIGNED_INT, (void*)(offset * sizeof(unsigned int)));
+		glDrawElements(GL_TRIANGLES, x.first, GL_UNSIGNED_INT, (void*)(offset * sizeof(unsigned int)));
 		//glDrawArrays(GL_TRIANGLES, 0, model.m_outVertices.size());
 		glBindVertexArray(0);
 
-		offset += (unsigned int)x.first;
+		offset = (unsigned int)x.first;
+		
 	}
 }
 		/*std::string name = "texture_diffuse";

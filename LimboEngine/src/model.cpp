@@ -109,14 +109,14 @@ bool Model::loadModel(const char* path)
 				checkForFirstUseMtlEntry = true;
 			}
 
-			m_usemtlLastName.push_back(mtlName);
+			m_usemtlLastName = mtlName;
 		}
 
 	}
-	if (m_usemtlLastName.size() >= 1)
+	/*if (m_usemtlName[indexToDrawPart].empty())
 	{
 		fillMapWithKeysToDraw();
-	}
+	}*/
 
 	std::size_t sizeToReserve = m_vertexIndices.size() + m_textureIndices.size() + m_normalIndices.size();
 	meshData.reserve(sizeToReserve);
@@ -285,7 +285,6 @@ unsigned int loadTextureFromFile(std::string& fileName)
 
 void Model::fillMapWithKeysToDraw()
 {
-	indexToDrawPart = m_vertexIndices.size();
-	m_usemtlName[indexToDrawPart] = m_usemtlLastName[0];
-	m_usemtlLastName.pop_back();
+	indexToDrawPart = m_vertexIndices.size() - indexToDrawPart;
+	m_usemtlName[indexToDrawPart] = m_usemtlLastName;
 }
