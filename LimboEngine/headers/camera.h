@@ -83,10 +83,10 @@ public:
 		{
 			Position += Right * velocity;
 		}
-		if (!cursorState)
+		/*if (!cursorState)
 		{
 			Position.y = 0.0f;
-		}
+		}*/
 		if (cursorState)
 		{
 			Position.x = -2.0f;

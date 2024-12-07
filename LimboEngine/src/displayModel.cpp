@@ -2,8 +2,8 @@
 
 void DisplayModel::setupOpenGLMeshData()
 {
-	std::cout << "\nMtlUseLastName size - " << model.m_usemtlNames.size() << '\n';
-	std::cout << "indicesToDraw size - " << model.m_indicesToDrawPart.size();
+	std::cout << "\nMtlUseLastName size - " << model.getUseMtlNames().size() << '\n';
+	std::cout << "indicesToDraw size - " << model.getUseMtlNames().size();
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
 	glGenVertexArrays(1, &VAO);
@@ -42,7 +42,7 @@ void DisplayModel::Draw(Shader& shader)
 	for (const auto& x : model.m_indicesToDrawPart)
 	{
 
-		currentNameOfMtlForCurrentIndices = model.m_usemtlNames[i];
+		currentNameOfMtlForCurrentIndices = model.getUseMtlNames()[i];
 		
 		if (model.m_materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].diffuseMap) {
 			name = "material.texture_diffuse";
@@ -61,10 +61,9 @@ void DisplayModel::Draw(Shader& shader)
 		{
 			name = "material.texture_emission";
 			glUniform1i(glGetUniformLocation(shader.ID, name.c_str()), i);
-			glBindTextureUnit(i, model.m_materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].normalMap);
+			glBindTextureUnit(i, model.m_materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].emissionMap);
 			++i;
 		}
-
 	
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, x, GL_UNSIGNED_INT, (void*)(offset * sizeof(unsigned int)));

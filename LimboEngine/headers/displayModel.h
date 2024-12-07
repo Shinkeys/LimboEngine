@@ -15,7 +15,7 @@ private:
 	static_obj_loader::Model model;
 	void setupOpenGLMeshData();
 public:
-	DisplayModel(const char* path)
+	DisplayModel(std::filesystem::path& path)
 	{
 		model.loadModel(path);
 		setupOpenGLMeshData();

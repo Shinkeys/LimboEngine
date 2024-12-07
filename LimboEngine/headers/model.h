@@ -8,6 +8,7 @@
 
 #include "../headers/stb_image.h"
 
+#include <filesystem>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -49,33 +50,37 @@ namespace static_obj_loader
 	class Model
 	{
 	private:
+		std::vector<unsigned int> m_vertexIndices, m_textureIndices, m_normalIndices;
+		std::vector<std::string> m_usemtlNames;
+		std::vector<std::string> m_mtlFileName;
 
 	public:
 		// mesh data
 		std::vector<MeshData> meshData;
 
-		std::vector<unsigned int> m_vertexIndices, m_textureIndices, m_normalIndices;
 		std::vector<unsigned int> m_outVertexIndices;
 
-		// textures
+		// indices to draw for current material
 		std::vector<unsigned int> m_indicesToDrawPart;
-		std::vector<std::string> m_usemtlNames;
-		std::vector<std::string> m_mtlFileName;
-		std::unordered_map<unsigned int, MaterialsData> m_materialsValues;
-		void fillMapWithKeysToDraw(int i);
-		bool proceedMtlFile(const std::string& fileName);
 
+
+
+		std::unordered_map<unsigned int, MaterialsData> m_materialsValues;
 		// hold indices of textures loaded by stbi_load for current usemtl
 		std::unordered_map<std::string, MaterialsPicturesData> m_materialsPicturesFilesFromMtlData;
 
 
+		void fillMapWithKeysToDraw(int i);
+		bool proceedMtlFile(const std::string& fileName);
+		// get/set
+		const auto getUseMtlNames() const { return m_usemtlNames; }
 
 
 
-		bool loadModel(const char* path);
+
+		bool loadModel(const std::filesystem::path& path);
 	};
-
-	unsigned int loadTextureFromFile(std::string& path);
+	unsigned int loadTextureFromFile(const std::string& path);
 }
 
 

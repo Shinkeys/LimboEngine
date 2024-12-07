@@ -1,7 +1,7 @@
 ﻿#include "../headers/model.h"
 namespace static_obj_loader
 {
-	bool Model::loadModel(const char* path)
+	bool Model::loadModel(const std::filesystem::path& path)
 	{
 		std::ifstream file;
 		file.open(path);
@@ -90,7 +90,6 @@ namespace static_obj_loader
 			else if (strcmp(lineHeader, "mtllib") == 0)
 			{
 				std::string fileName;
-
 				iss >> fileName;
 				m_mtlFileName.push_back(fileName);
 
@@ -147,11 +146,12 @@ namespace static_obj_loader
 	bool Model::proceedMtlFile(const std::string& fileName)
 	{
 		std::ifstream file;
-		std::string pathToOpen = "../LimboEngine/Resources/objects/" + fileName;
+		std::filesystem::path pathToOpen = "../LimboEngine/Resources/objects/" + fileName;
+		std::cout << "PATH TO OPEN: " << pathToOpen << '\n';
 		file.open(pathToOpen);
 		if (!file)
 		{
-			std::cout << "Could not open the file by provided path!";
+			std::cout << "Could not open the texture file by provided path!";
 			return false;
 		}
 		std::string line;
@@ -248,15 +248,16 @@ namespace static_obj_loader
 		}
 	}
 
-	unsigned int loadTextureFromFile(std::string& fileName)
+	unsigned int loadTextureFromFile(const std::string& fileName)
 	{
-		std::string pathToOpen = "../LimboEngine/Resources/objects/textures/" + fileName;
+		std::filesystem::path basePath = "../LimboEngine/Resources/objects/textures/";
+		std::filesystem::path pathToOpen = basePath / fileName;
 		std::cout << "Texture: " << fileName << '\n';
 		unsigned int textureID;
 		glGenTextures(1, &textureID);
 
 		int width, height, nrChannels;
-		unsigned char* data = stbi_load(pathToOpen.c_str(), &width, &height, &nrChannels, 0);
+		unsigned char* data = stbi_load(pathToOpen.string().c_str(), &width, &height, &nrChannels, 0);
 		int format = nrChannels == 4 ? GL_RGBA : GL_RGB;
 		if (data)
 		{
