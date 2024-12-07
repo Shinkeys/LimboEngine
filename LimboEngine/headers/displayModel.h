@@ -12,13 +12,13 @@ class DisplayModel
 {
 private:
 	unsigned int VAO, VBO, EBO;
-	Model model;
-	void setupOpenGLMeshData(std::size_t indicesToDraw);
+	static_obj_loader::Model model;
+	void setupOpenGLMeshData();
 public:
 	DisplayModel(const char* path)
 	{
 		model.loadModel(path);
-		setupOpenGLMeshData(model.m_vertexIndices.size());
+		setupOpenGLMeshData();
 	}
 	
 	void Draw(Shader& shader);

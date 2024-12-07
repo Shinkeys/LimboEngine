@@ -2,10 +2,11 @@
 out vec4 FragColor;
 
 struct Material{
-	sampler2D texture_diffuse1;
-	sampler2D texture_normal1;
-	sampler2D texture_roughness1;
-	sampler2D texture_specular1;
+	sampler2D texture_diffuse;
+	sampler2D texture_normal;
+	sampler2D texture_roughness;
+	sampler2D texture_specular;
+	sampler2D texture_emission;
 };
 
 
@@ -17,8 +18,8 @@ in vec3 LightPos;
 uniform Material material;
 void main()
 {
-	vec3 diffuse = texture(material.texture_diffuse1, TexCoords).rgb;
-	vec3 specular = texture(material.texture_specular1, TexCoords).rgb;
+	vec3 diffuse = texture(material.texture_diffuse, TexCoords).rgb;
+	vec3 specular = texture(material.texture_specular, TexCoords).rgb;
 
 
 	vec3 normalMap = normalize(Normal);

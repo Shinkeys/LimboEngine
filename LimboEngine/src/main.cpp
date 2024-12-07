@@ -99,7 +99,7 @@ int main() {
 	glFrontFace(GL_CCW);
 	Shader lamp("shaders/lamp.vert", "shaders/lamp.frag");
 	Shader lightCubeShader("shaders/lightCube.vert", "shaders/lightCube.frag");
-	DisplayModel dModel("../LimboEngine/Resources/objects/viking.obj");
+	DisplayModel dModel("../LimboEngine/Resources/objects/Tholian_Base_v013_Clean.obj");
 	
 	Meshes mesh;
 
