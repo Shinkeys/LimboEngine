@@ -16,8 +16,7 @@
 #include <sstream>
 #include <unordered_map>
 
-
-namespace static_obj_loader
+namespace loader_constant_data
 {
 	struct MeshData
 	{
@@ -25,8 +24,6 @@ namespace static_obj_loader
 		glm::vec2 textures{};
 		glm::vec3 normal{};
 	};
-
-
 	struct MaterialsData
 	{
 		glm::vec3 Ka{ 0.0 };
@@ -46,7 +43,10 @@ namespace static_obj_loader
 		unsigned int normalMap{ 0 };
 	};
 
+}
 
+namespace static_obj_loader
+{
 	class Model
 	{
 	private:
@@ -56,7 +56,7 @@ namespace static_obj_loader
 
 	public:
 		// mesh data
-		std::vector<MeshData> meshData;
+		std::vector<loader_constant_data::MeshData> meshData;
 
 		std::vector<unsigned int> m_outVertexIndices;
 
@@ -65,16 +65,18 @@ namespace static_obj_loader
 
 
 
-		std::unordered_map<unsigned int, MaterialsData> m_materialsValues;
+		std::unordered_map<unsigned int, loader_constant_data::MaterialsData> m_materialsValues;
 		// hold indices of textures loaded by stbi_load for current usemtl
-		std::unordered_map<std::string, MaterialsPicturesData> m_materialsPicturesFilesFromMtlData;
+		std::unordered_map<std::string, loader_constant_data::MaterialsPicturesData> m_materialsPicturesFilesFromMtlData;
 
 
 		void fillMapWithKeysToDraw(int i);
 		bool proceedMtlFile(const std::string& fileName);
 		// get/set
 		const auto getUseMtlNames() const { return m_usemtlNames; }
-
+		const auto getAmountOfVertices() const { return m_vertexIndices; }
+		const auto getAmountOfTextures() const { return m_textureIndices; }
+		const auto getAmountOfNormals() const { return m_normalIndices; }
 
 
 
@@ -83,5 +85,20 @@ namespace static_obj_loader
 	unsigned int loadTextureFromFile(const std::string& path);
 }
 
+namespace convert_to_binary_pdd
+{
+	struct PddMeshData
+	{
+		std::vector<glm::vec3> vertices;
+		std::vector<glm::vec3> normals;
+		std::vector<glm::vec2> textures;
+		std::vector<unsigned int> indices;
+	};
+
+	
+	void createPddFileFromObj(const std::filesystem::path& fileName,
+		unsigned int verticesCount, unsigned int texturesCount, unsigned int normalsCount,
+		std::vector<loader_constant_data::MeshData>& meshData);
+}
 
 #endif

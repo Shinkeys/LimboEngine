@@ -13,7 +13,7 @@ void DisplayModel::setupOpenGLMeshData()
 	
 
 	// to change glm::vec3 on MeshData
-	glBufferData(GL_ARRAY_BUFFER, model.meshData.size() * sizeof(static_obj_loader::MeshData), &model.meshData[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, model.meshData.size() * sizeof(loader_constant_data::MeshData), &model.meshData[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	 
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.m_outVertexIndices.size() * sizeof(unsigned int), 
@@ -21,14 +21,14 @@ void DisplayModel::setupOpenGLMeshData()
 
 	glEnableVertexAttribArray(0);
 	// to change glm::vec3 on MeshData
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(static_obj_loader::MeshData), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(loader_constant_data::MeshData), (void*)0);
 
 
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(static_obj_loader::MeshData), (void*)offsetof(static_obj_loader::MeshData, normal));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(loader_constant_data::MeshData), (void*)offsetof(loader_constant_data::MeshData, normal));
 
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(static_obj_loader::MeshData), (void*)offsetof(static_obj_loader::MeshData, textures));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(loader_constant_data::MeshData), (void*)offsetof(loader_constant_data::MeshData, textures));
 
 	glEnableVertexAttribArray(0);
 }

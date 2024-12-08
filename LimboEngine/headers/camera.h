@@ -87,7 +87,7 @@ public:
 		{
 			Position.y = 0.0f;
 		}*/
-		if (cursorState)
+		else if (cursorState)
 		{
 			Position.x = -2.0f;
 			Position.y = 3.0f;

@@ -1,8 +1,26 @@
 ﻿#include "../headers/model.h"
+/*
+   ____  ____       _
+  / __ \|  _ \     | |
+ | |  | | |_) |    | |
+ | |  | |  _ < _   | |
+ | |__| | |_) | |__| |
+  \____/|____/ \____/
+*/
 namespace static_obj_loader
 {
 	bool Model::loadModel(const std::filesystem::path& path)
 	{
+		// to do
+		if (path.extension() == ".pdd")
+		{
+			std::cout << "File type is - .pdd\n";
+		}
+		/*else
+		{
+			throw std::runtime_error("File type is not .pdd or .obj! Error");
+		}*/
+
 		std::ifstream file;
 		file.open(path);
 		if (!file)
@@ -75,17 +93,14 @@ namespace static_obj_loader
 				m_normalIndices.push_back(normalIndex[2]);
 			}
 
-			/*////////////////////////////////////////////////////////////////////////////////
-			/////////////////////////////////////////////////////////////////////////////////
-			////////////////////////////////////////////////////////////////////////////////
-					████████╗███████╗██╗  ██╗████████╗██	██║ ██████╗	███████╗
-					╚══██╔══╝██╔════╝██║  ██║╚══██╔══╝██	██║ ██╔══██╗██╔════╝
-					   ██║   █████╗  ███████║   ██║   ██	██║ ██████╔╝█████╗
-					   ██║   ██╔══╝  ██╔══██║   ██║   ██	██║ ██╔═══╝	██╔══╝
-					   ██║   ███████╗██║  ██║   ██║   ██	██║ ██║		███████╗
-					   ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝	  ██████╚═╝ ╚═╝		╚══════╝
-
-			/////////////////////////////////////////////////////////////////////////////*/
+			/*
+			  _______ ________   _________ _    _ _____  ______  _____ 
+			 |__   __|  ____\ \ / /__   __| |  | |  __ \|  ____|/ ____|
+				| |  | |__   \ V /   | |  | |  | | |__) | |__  | (___  
+				| |  |  __|   > <    | |  | |  | |  _  /|  __|  \___ \ 
+				| |  | |____ / . \   | |  | |__| | | \ \| |____ ____) |
+				|_|  |______/_/ \_\  |_|   \____/|_|  \_\______|_____/                     
+			*/
 
 			else if (strcmp(lineHeader, "mtllib") == 0)
 			{
@@ -123,7 +138,7 @@ namespace static_obj_loader
 		std::size_t sizeToReserve = m_vertexIndices.size() + m_textureIndices.size() + m_normalIndices.size();
 		meshData.reserve(sizeToReserve);
 
-		MeshData tempMeshData;
+		loader_constant_data::MeshData tempMeshData;
 		for (unsigned int i = 0; i < m_vertexIndices.size(); ++i)
 		{
 			unsigned int vertexIndex = m_vertexIndices[i];
@@ -140,6 +155,13 @@ namespace static_obj_loader
 		}
 
 		file.close();
+
+		if (path.extension() == ".obj")
+		{
+			std::cout << "File type is - .obj\n";
+			convert_to_binary_pdd::createPddFileFromObj(path, 
+				m_vertexIndices.size(), m_textureIndices.size(), m_normalIndices.size(), meshData);
+		}
 
 		return true;
 	}
@@ -158,8 +180,8 @@ namespace static_obj_loader
 
 		std::string tempMaterialName;
 
-		MaterialsData tempMaterialsData;
-		MaterialsPicturesData tempMaterialsPicFilesData;
+		loader_constant_data::MaterialsData tempMaterialsData;
+		loader_constant_data::MaterialsPicturesData tempMaterialsPicFilesData;
 		std::string tempMaterialPicFileName;
 
 		while (true)
@@ -280,13 +302,6 @@ namespace static_obj_loader
 		return textureID;
 	}
 
-
-
-
-
-
-
-
 	void Model::fillMapWithKeysToDraw(int i)
 	{
 		m_indicesToDrawPart.push_back(m_vertexIndices.size());
@@ -295,5 +310,39 @@ namespace static_obj_loader
 			m_indicesToDrawPart[i] -= m_indicesToDrawPart[i - 1];
 		}
 		// removing indices from previous iterations because we already drew em
+	}
+}
+/*
+  ____ _____ _   _          _______     __  ______ ____  _____  __  __       _______ 
+ |  _ \_   _| \ | |   /\   |  __ \ \   / / |  ____/ __ \|  __ \|  \/  |   /\|__   __|
+ | |_) || | |  \| |  /  \  | |__) \ \_/ /  | |__ | |  | | |__) | \  / |  /  \  | |   
+ |  _ < | | | . ` | / /\ \ |  _  / \   /   |  __|| |  | |  _  /| |\/| | / /\ \ | |   
+ | |_) || |_| |\  |/ ____ \| | \ \  | |    | |   | |__| | | \ \| |  | |/ ____ \| |   
+ |____/_____|_| \_/_/    \_\_|  \_\ |_|    |_|    \____/|_|  \_\_|  |_/_/    \_\_|
+*/
+namespace convert_to_binary_pdd
+{
+	void createPddFileFromObj(const std::filesystem::path& fileName,
+		unsigned int verticesCount, unsigned int texturesCount, unsigned int normalsCount,
+		std::vector<loader_constant_data::MeshData>& meshData)
+	{
+		std::filesystem::path currentFileName = fileName.filename();
+		currentFileName.replace_extension(".pdd");
+		std::ofstream pddFile(currentFileName);
+		const char signature[] = "PIDD";
+
+		pddFile.write(reinterpret_cast<const char*>(&signature), sizeof(signature)) << std::endl;
+		
+		// count of vertices
+		pddFile.write(reinterpret_cast<const char*>(&verticesCount), sizeof(verticesCount));
+		// count of textures
+		pddFile.write(reinterpret_cast<const char*>(&texturesCount), sizeof(texturesCount));
+		// count of normals
+		pddFile.write(reinterpret_cast<const char*>(&normalsCount), sizeof(normalsCount)) << std::endl;
+		
+		//// writing their data
+		pddFile.write(reinterpret_cast<const char*>(meshData.data()), meshData.size());
+		
+
 	}
 }
