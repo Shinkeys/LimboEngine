@@ -95,10 +95,14 @@ namespace convert_to_binary_pdd
 		std::vector<unsigned int> indices;
 	};
 
+
+	std::unique_ptr<PddMeshData> pddMeshData_ptr;
+	const char signature[] = "PIDD";
 	
 	void createPddFileFromObj(const std::filesystem::path& fileName,
-		unsigned int verticesCount, unsigned int texturesCount, unsigned int normalsCount,
+		unsigned int verticesCount, unsigned int texturesCount, unsigned int normalsCount, unsigned int indicesCount,
 		std::vector<loader_constant_data::MeshData>& meshData);
+	void readPddFile(const std::filesystem::path& path);
 }
 
 #endif

@@ -14,7 +14,7 @@ namespace static_obj_loader
 		// to do
 		if (path.extension() == ".pdd")
 		{
-			std::cout << "File type is - .pdd\n";
+			convert_to_binary_pdd::readPddFile(path);
 		}
 		/*else
 		{
@@ -160,7 +160,8 @@ namespace static_obj_loader
 		{
 			std::cout << "File type is - .obj\n";
 			convert_to_binary_pdd::createPddFileFromObj(path, 
-				m_vertexIndices.size(), m_textureIndices.size(), m_normalIndices.size(), meshData);
+				tempVertices.size(),  tempTextures.size(),
+				tempNormal.size(), m_outVertexIndices.size(), meshData);
 		}
 
 		return true;
@@ -323,26 +324,54 @@ namespace static_obj_loader
 namespace convert_to_binary_pdd
 {
 	void createPddFileFromObj(const std::filesystem::path& fileName,
-		unsigned int verticesCount, unsigned int texturesCount, unsigned int normalsCount,
+		unsigned int verticesCount, unsigned int texturesCount, unsigned int normalsCount, unsigned int indicesCount,
 		std::vector<loader_constant_data::MeshData>& meshData)
 	{
 		std::filesystem::path currentFileName = fileName.filename();
 		currentFileName.replace_extension(".pdd");
-		std::ofstream pddFile(currentFileName);
-		const char signature[] = "PIDD";
+		std::ofstream pddFile(currentFileName, std::ios::binary);
+		if (!pddFile)
+		{
+			std::cout << "Unable to proceed ur file!";
+			return;
+		}
 
 		pddFile.write(reinterpret_cast<const char*>(&signature), sizeof(signature)) << std::endl;
 		
 		// count of vertices
-		pddFile.write(reinterpret_cast<const char*>(&verticesCount), sizeof(verticesCount));
+		pddFile.write(reinterpret_cast<const char*>(&verticesCount), sizeof(verticesCount)) << std::endl;
 		// count of textures
-		pddFile.write(reinterpret_cast<const char*>(&texturesCount), sizeof(texturesCount));
+		pddFile.write(reinterpret_cast<const char*>(&texturesCount), sizeof(texturesCount)) << std::endl;
 		// count of normals
 		pddFile.write(reinterpret_cast<const char*>(&normalsCount), sizeof(normalsCount)) << std::endl;
 		
 		//// writing their data
-		pddFile.write(reinterpret_cast<const char*>(meshData.data()), meshData.size());
+		pddFile.write(reinterpret_cast<const char*>(meshData.data()), meshData.size()) << std::endl;
 		
+		//// writing indices count
+		pddFile.write(reinterpret_cast<const char*>(&indicesCount), sizeof(indicesCount)) << std::endl;
+
+		std::cout << reinterpret_cast<const char*>(&indicesCount), sizeof(verticesCount);
+	}
+
+	void readPddFile(const std::filesystem::path& path)
+	{
+		std::ifstream pddFile(path, std::ios::binary);
+
+		if (!pddFile)
+		{
+			std::cout << "File is not a .PDD!";
+			return;
+		}
+		char fileSignature[5];
+		
+		pddFile.read(fileSignature, sizeof(signature));
+		if (strcmp(fileSignature, "PIDD") != 0)
+		{
+			std::cout << "File header is not PIDD!!";
+			return;
+		}
+
 
 	}
 }
