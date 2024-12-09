@@ -89,20 +89,21 @@ namespace convert_to_binary_pdd
 {
 	struct PddMeshData
 	{
-		std::vector<glm::vec3> vertices;
-		std::vector<glm::vec3> normals;
-		std::vector<glm::vec2> textures;
-		std::vector<unsigned int> indices;
+		glm::vec3 vertices{};
+		glm::vec2 textures{};
+		glm::vec3 normals{};
 	};
 
 
-	std::unique_ptr<PddMeshData> pddMeshData_ptr;
 	const char signature[] = "PIDD";
 	
+	inline std::vector<unsigned int> outIndicesCount;
+
+
 	void createPddFileFromObj(const std::filesystem::path& fileName,
 		unsigned int verticesCount, unsigned int texturesCount, unsigned int normalsCount, unsigned int indicesCount,
 		std::vector<loader_constant_data::MeshData>& meshData);
-	void readPddFile(const std::filesystem::path& path);
+	void readPddFile(const std::filesystem::path& path, std::vector<PddMeshData>& pddMeshData);
 }
 
 #endif

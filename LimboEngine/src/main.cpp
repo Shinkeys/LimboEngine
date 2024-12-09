@@ -99,7 +99,8 @@ int main() {
 	glFrontFace(GL_CCW);
 	Shader lamp("shaders/lamp.vert", "shaders/lamp.frag");
 	Shader lightCubeShader("shaders/lightCube.vert", "shaders/lightCube.frag");
-	std::filesystem::path pathToTheModel = "../LimboEngine/FragataVictoria.pdd";
+	/*std::filesystem::path pathToTheModel = "../LimboEngine/FragataVictoria.pdd";*/
+	std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/FragataVictoria.obj";
 	DisplayModel dModel(pathToTheModel);
 	
 	Meshes mesh;
