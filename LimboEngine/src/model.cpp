@@ -7,6 +7,117 @@
  | |__| | |_) | |__| |
   \____/|____/ \____/
 */
+namespace loader_constant_data
+{
+	bool proceedMtlFile(const std::filesystem::path& fileName)
+	{
+		std::ifstream file;
+		std::filesystem::path pathToOpen = fileName;
+		std::cout << "PATH TO OPEN: " << pathToOpen << '\n';
+		file.open(pathToOpen.replace_extension(".mtl"));
+		if (!file)
+		{
+			std::cout << "Could not open the texture file by provided path!";
+			return false;
+		}
+		std::string line;
+
+		std::string tempMaterialName;
+
+		loader_constant_data::MaterialsData tempMaterialsData;
+		loader_constant_data::MaterialsPicturesData tempMaterialsPicFilesData;
+		std::string tempMaterialPicFileName = "";
+
+		while (true)
+		{
+			char lineHeader[128];
+			if (file.peek() == EOF)
+			{
+				break;
+			}
+			std::getline(file, line);
+
+			std::istringstream iss(line);
+			iss >> lineHeader;
+			if (strcmp(lineHeader, "newmtl") == 0)
+			{
+				iss >> tempMaterialName;
+
+
+			}
+			else if (strcmp(lineHeader, "Ns") == 0)
+			{
+				iss >> tempMaterialsData.Ns;
+			}
+			else if (strcmp(lineHeader, "Ka") == 0)
+			{
+				iss >> tempMaterialsData.Ka.x
+					>> tempMaterialsData.Ka.y
+					>> tempMaterialsData.Ka.z;
+			}
+			else if (strcmp(lineHeader, "Kd") == 0)
+			{
+				iss >> tempMaterialsData.Kd.x
+					>> tempMaterialsData.Kd.y
+					>> tempMaterialsData.Kd.z;
+			}
+			else if (strcmp(lineHeader, "Ks") == 0)
+			{
+				iss >> tempMaterialsData.Ks.x
+					>> tempMaterialsData.Ks.y
+					>> tempMaterialsData.Ks.z;
+			}
+			else if (strcmp(lineHeader, "Ke") == 0)
+			{
+				iss >> tempMaterialsData.Ke.x
+					>> tempMaterialsData.Ke.y
+					>> tempMaterialsData.Ke.z;
+			}
+			else if (strcmp(lineHeader, "Ni") == 0)
+			{
+				iss >> tempMaterialsData.Ni;
+			}
+			else if (strcmp(lineHeader, "d") == 0)
+			{
+				iss >> tempMaterialsData.d;
+			}
+			else if (strcmp(lineHeader, "illum") == 0)
+			{
+				iss >> tempMaterialsData.illum;
+			}
+
+			////////////// material pictures files //////////////////
+			else if (strcmp(lineHeader, "map_Kd") == 0)
+			{
+				iss >> tempMaterialPicFileName;
+
+				tempMaterialsPicFilesData.diffuseMap = static_obj_loader::loadTextureFromFile(tempMaterialPicFileName);
+			}
+			else if (strcmp(lineHeader, "map_Ke") == 0)
+			{
+				iss >> tempMaterialPicFileName;
+
+				tempMaterialsPicFilesData.emissionMap = static_obj_loader::loadTextureFromFile(tempMaterialPicFileName);
+			}
+			else if ((strcmp(lineHeader, "map_Bump") == 0) || (strcmp(lineHeader, "bump") == 0))
+			{
+				iss >> tempMaterialPicFileName;
+
+				tempMaterialsPicFilesData.normalMap = static_obj_loader::loadTextureFromFile(tempMaterialPicFileName);
+			}
+			else
+			{
+				/*m_materialsValues[indexToDrawPart] = tempMaterialsData;*/
+				if (tempMaterialPicFileName != "")
+				{
+					convert_to_binary_pdd::materialsPicturesFilesFromMtlData[tempMaterialName] = tempMaterialsPicFilesData;
+					std::cout << "Proceed mtl file data: " <<
+						convert_to_binary_pdd::materialsPicturesFilesFromMtlData[tempMaterialName].diffuseMap << '\n';
+				}
+			}
+		}
+	}
+}
 namespace static_obj_loader
 {
 	bool Model::loadModel(const std::filesystem::path& path)
@@ -98,7 +209,6 @@ namespace static_obj_loader
 				iss >> fileName;
 				m_mtlFileName.push_back(fileName);
 
-				proceedMtlFile(fileName);
 			}
 
 			else if (strcmp(lineHeader, "usemtl") == 0)
@@ -127,7 +237,6 @@ namespace static_obj_loader
 
 		std::size_t sizeToReserve = m_vertexIndices.size() + m_textureIndices.size() + m_normalIndices.size();
 		meshData.reserve(sizeToReserve);
-
 		loader_constant_data::MeshData tempMeshData;
 		for (unsigned int i = 0; i < m_vertexIndices.size(); ++i)
 		{
@@ -145,120 +254,17 @@ namespace static_obj_loader
 		}
 
 		file.close();
-
+		
 		if (path.extension() == ".obj")
 		{
 			std::cout << "File type is - .obj\n";
+			std::cout << "m_outVertexIndices.size(): " << m_outVertexIndices.size() << '\n';
 			convert_to_binary_pdd::createPddFileFromObj(path, 
 				tempVertices.size(),  tempTextures.size(),
-				tempNormal.size(), m_outVertexIndices.size(), meshData);
+				tempNormal.size(), m_outVertexIndices.size(), meshData, m_indicesToDrawPart, m_usemtlNames);
 		}
 
 		return true;
-	}
-	bool Model::proceedMtlFile(const std::string& fileName)
-	{
-		std::ifstream file;
-		std::filesystem::path pathToOpen = "../LimboEngine/Resources/objects/" + fileName;
-		std::cout << "PATH TO OPEN: " << pathToOpen << '\n';
-		file.open(pathToOpen);
-		if (!file)
-		{
-			std::cout << "Could not open the texture file by provided path!";
-			return false;
-		}
-		std::string line;
-
-		std::string tempMaterialName;
-
-		loader_constant_data::MaterialsData tempMaterialsData;
-		loader_constant_data::MaterialsPicturesData tempMaterialsPicFilesData;
-		std::string tempMaterialPicFileName;
-
-		while (true)
-		{
-			char lineHeader[128];
-			if (file.peek() == EOF)
-			{
-				break;
-			}
-			std::getline(file, line);
-
-			std::istringstream iss(line);
-			iss >> lineHeader;
-			if (strcmp(lineHeader, "newmtl") == 0)
-			{
-				iss >> tempMaterialName;
-
-
-			}
-			else if (strcmp(lineHeader, "Ns") == 0)
-			{
-				iss >> tempMaterialsData.Ns;
-			}
-			else if (strcmp(lineHeader, "Ka") == 0)
-			{
-				iss >> tempMaterialsData.Ka.x
-					>> tempMaterialsData.Ka.y
-					>> tempMaterialsData.Ka.z;
-			}
-			else if (strcmp(lineHeader, "Kd") == 0)
-			{
-				iss >> tempMaterialsData.Kd.x
-					>> tempMaterialsData.Kd.y
-					>> tempMaterialsData.Kd.z;
-			}
-			else if (strcmp(lineHeader, "Ks") == 0)
-			{
-				iss >> tempMaterialsData.Ks.x
-					>> tempMaterialsData.Ks.y
-					>> tempMaterialsData.Ks.z;
-			}
-			else if (strcmp(lineHeader, "Ke") == 0)
-			{
-				iss >> tempMaterialsData.Ke.x
-					>> tempMaterialsData.Ke.y
-					>> tempMaterialsData.Ke.z;
-			}
-			else if (strcmp(lineHeader, "Ni") == 0)
-			{
-				iss >> tempMaterialsData.Ni;
-			}
-			else if (strcmp(lineHeader, "d") == 0)
-			{
-				iss >> tempMaterialsData.d;
-			}
-			else if (strcmp(lineHeader, "illum") == 0)
-			{
-				iss >> tempMaterialsData.illum;
-			}
-
-			////////////// material pictures files //////////////////
-			else if (strcmp(lineHeader, "map_Kd") == 0)
-			{
-				iss >> tempMaterialPicFileName;
-
-				tempMaterialsPicFilesData.diffuseMap = loadTextureFromFile(tempMaterialPicFileName);
-			}
-			else if (strcmp(lineHeader, "map_Ke") == 0)
-			{
-				iss >> tempMaterialPicFileName;
-
-				tempMaterialsPicFilesData.emissionMap = loadTextureFromFile(tempMaterialPicFileName);
-			}
-			else if ((strcmp(lineHeader, "map_Bump") == 0) || (strcmp(lineHeader, "bump") == 0))
-			{
-				iss >> tempMaterialPicFileName;
-
-				tempMaterialsPicFilesData.normalMap = loadTextureFromFile(tempMaterialPicFileName);
-			}
-			else
-			{
-				/*m_materialsValues[indexToDrawPart] = tempMaterialsData;*/
-				m_materialsPicturesFilesFromMtlData[tempMaterialName] = tempMaterialsPicFilesData;
-				std::cout << "Proceed mtl file data: " << m_materialsPicturesFilesFromMtlData[tempMaterialName].diffuseMap << '\n';
-			}
-		}
 	}
 
 	unsigned int loadTextureFromFile(const std::string& fileName)
@@ -314,8 +320,10 @@ namespace static_obj_loader
 namespace convert_to_binary_pdd
 {
 	void createPddFileFromObj(const std::filesystem::path& fileName,
-		unsigned int verticesCount, unsigned int texturesCount, unsigned int normalsCount, unsigned int indicesCount,
-		std::vector<loader_constant_data::MeshData>& meshData)
+		unsigned int verticesCount, unsigned int texturesCount, 
+		unsigned int normalsCount, unsigned int indicesCount,
+		std::vector<loader_constant_data::MeshData>& meshData, std::vector<unsigned int>& indicesToDrawPart,
+		std::vector<std::string>& model_useMtlNames)
 	{
 		std::filesystem::path currentFileName = fileName.filename();
 		currentFileName.replace_extension(".pdd");
@@ -327,37 +335,55 @@ namespace convert_to_binary_pdd
 		}
 
 		pddFile.write(reinterpret_cast<const char*>(&signature), sizeof(signature));
-		
+	
 		// count of vertices
 		pddFile.write(reinterpret_cast<const char*>(&verticesCount), sizeof(verticesCount));
-		// count of textures
-		pddFile.write(reinterpret_cast<const char*>(&texturesCount), sizeof(texturesCount));
 		// count of normals
 		pddFile.write(reinterpret_cast<const char*>(&normalsCount), sizeof(normalsCount));
-		
-		//// writing their data
-		pddFile.write(reinterpret_cast<const char*>(meshData.data()), meshData.size());
-
-		//// writing indices count
+		// count of textures
+		pddFile.write(reinterpret_cast<const char*>(&texturesCount), sizeof(texturesCount));
+		// count of indices to draw
 		pddFile.write(reinterpret_cast<const char*>(&indicesCount), sizeof(indicesCount));
-		std::cout << verticesCount << '\n';
-		std::cout << texturesCount << '\n';
-		std::cout << normalsCount << '\n';
-		std::cout << indicesCount;
+
+		//////// writing their data
+		pddFile.write(reinterpret_cast<const char*>(meshData.data()),
+			sizeof(loader_constant_data::MeshData) * meshData.size());
+		
+		unsigned int indicesToDrawPartSize = indicesToDrawPart.size();
+		// writing indices to draw part size
+		pddFile.write(reinterpret_cast<const char*>(&indicesToDrawPartSize), sizeof(indicesToDrawPartSize));
+		// writing its data	
+		pddFile.write(reinterpret_cast<const char*>(indicesToDrawPart.data()),
+			sizeof(unsigned int) * indicesToDrawPart.size());
+		
+
+		// writing useMtlNames in a row which materials to use for each vertices
+		unsigned int useMtlNamesSize = model_useMtlNames.size();
+		pddFile.write(reinterpret_cast<const char*>(&useMtlNamesSize), sizeof(useMtlNamesSize));
+		// writing its data
+		pddFile.write(reinterpret_cast<const char*>(model_useMtlNames.data()),
+			sizeof(std::string) * model_useMtlNames.size());
+		
+		std::cout << "\nMeshDataSize: " << meshData.size() << '\n';
+		////// writing indices count
+		//std::cout << verticesCount << '\n';
+		//std::cout << texturesCount << '\n';
+		//std::cout << normalsCount << '\n';
+		//std::cout << indicesCount << '\n';
 		
 		/*std::cout << reinterpret_cast<const char*>(&indicesCount), sizeof(verticesCount);*/
 
 		pddFile.close();
 	}
 
-	void readPddFile(const std::filesystem::path& path, std::vector<PddMeshData>& pddMeshData)
+	std::vector<PddMeshData> readPddFile(const std::filesystem::path& path)
 	{
 
 		std::ifstream pddFile(path, std::ios::binary);
 		if (!pddFile)
 		{
 			std::cout << "File is not a .PDD!";
-			return;
+			std::abort();
 		}
 
 
@@ -366,37 +392,61 @@ namespace convert_to_binary_pdd
 		unsigned int texturesCount;
 		unsigned int normalsCount;
 		unsigned int indicesCount;
+		unsigned int indicesToDrawPartCount;
+		unsigned int useMtlCount;
+		std::vector<PddMeshData> pddMeshData;
 
 		pddFile.read(fileSignature, sizeof(signature));
 		if (strcmp(fileSignature, "PIDD") != 0)
 		{
 			std::cout << "File header is not PIDD!!";
-			return;
+			std::abort();
 		}
 
+	
 		
 		pddFile.read(reinterpret_cast<char*>(&verticesCount), sizeof(verticesCount));
 		std::cout << verticesCount << '\n';
-		pddFile.read(reinterpret_cast<char*>(&texturesCount), sizeof(texturesCount));
-		std::cout << texturesCount << '\n';
 		pddFile.read(reinterpret_cast<char*>(&normalsCount), sizeof(normalsCount));
 		std::cout << normalsCount << '\n';
+		pddFile.read(reinterpret_cast<char*>(&texturesCount), sizeof(texturesCount));
+		std::cout << texturesCount << '\n';
 
-		unsigned int meshDataSize = verticesCount + texturesCount + normalsCount;
-
-		pddMeshData.resize(meshDataSize);
-		pddFile.read(reinterpret_cast<char*>(pddMeshData.data()), meshDataSize);
-		
 		pddFile.read(reinterpret_cast<char*>(&indicesCount), sizeof(indicesCount));
 
+		pddMeshData.resize(indicesCount);
+
+		pddFile.read(reinterpret_cast<char*>(pddMeshData.data()),
+			sizeof(convert_to_binary_pdd::PddMeshData) * indicesCount);
+
+		pddFile.read(reinterpret_cast<char*>(&indicesToDrawPartCount), sizeof(indicesToDrawPartCount));
+		
+		indicesToDrawPart.resize(indicesToDrawPartCount);
+
+		pddFile.read(reinterpret_cast<char*>(indicesToDrawPart.data()), 
+			sizeof(unsigned int) * indicesToDrawPartCount);
+
+
+		pddFile.read(reinterpret_cast<char*>(&useMtlCount), sizeof(useMtlCount));
+		
+		useMtlNames.resize(useMtlCount);
+
+		pddFile.read(reinterpret_cast<char*>(useMtlNames.data()),
+			sizeof(std::string) * useMtlNames.size());
+
 		outIndicesCount.reserve(indicesCount);
+
+
 		for (auto i = 0; i < indicesCount; ++i)
 		{
 			outIndicesCount.push_back(i);
 		}
 
-
 		pddFile.close();
+
+		loader_constant_data::proceedMtlFile(path);
+
+		return pddMeshData;
 	}
 
 }

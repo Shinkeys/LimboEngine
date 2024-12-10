@@ -12,7 +12,6 @@ class DisplayModel
 {
 private:
 	unsigned int VAO, VBO, EBO;
-	static_obj_loader::Model model;
 	std::vector<convert_to_binary_pdd::PddMeshData> pddMeshData;
 	void setupOpenGLMeshData();
 public:
@@ -20,11 +19,12 @@ public:
 	{
 		if (path.extension() == ".obj")
 		{
+			static_obj_loader::Model model;
 			model.loadModel(path);
 		}
 		else if (path.extension() == ".pdd")
 		{
-			convert_to_binary_pdd::readPddFile(path, pddMeshData);
+			pddMeshData = convert_to_binary_pdd::readPddFile(path);
 		}
 		
 		setupOpenGLMeshData();

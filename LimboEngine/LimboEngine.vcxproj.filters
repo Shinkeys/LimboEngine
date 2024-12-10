@@ -70,24 +70,4 @@
     <None Include="vendor\assimp\bin\Debug\assimp-vc143-mtd.dll" />
     <None Include="vendor\assimp\lib\Debug\assimp-vc143-mtd.dll" />
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="textures\awesomeface.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="textures\container.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="textures\container2.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="textures\container2_specular.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="textures\lighting_maps_specular_color.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="textures\matrix.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
 </Project>

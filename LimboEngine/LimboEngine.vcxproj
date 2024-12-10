@@ -76,6 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -90,6 +91,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -165,14 +167,6 @@
     <None Include="vendor\assimp\lib\Debug\assimp-vc143-mtd.dll" />
     <None Include="vendor\assimp\lib\Debug\assimp-vc143-mtd.exp" />
     <None Include="vendor\GLFW\lib-vc2022\glfw3.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="textures\awesomeface.png" />
-    <Image Include="textures\container.jpg" />
-    <Image Include="textures\container2.png" />
-    <Image Include="textures\container2_specular.png" />
-    <Image Include="textures\lighting_maps_specular_color.png" />
-    <Image Include="textures\matrix.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

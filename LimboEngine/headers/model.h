@@ -18,12 +18,14 @@
 
 namespace loader_constant_data
 {
+
 	struct MeshData
 	{
 		glm::vec3 vertices{};
-		glm::vec2 textures{};
 		glm::vec3 normal{};
+		glm::vec2 textures{};
 	};
+
 	struct MaterialsData
 	{
 		glm::vec3 Ka{ 0.0 };
@@ -42,7 +44,7 @@ namespace loader_constant_data
 		unsigned int emissionMap{ 0 };
 		unsigned int normalMap{ 0 };
 	};
-
+	bool proceedMtlFile(const std::filesystem::path& fileName);
 }
 
 namespace static_obj_loader
@@ -71,7 +73,6 @@ namespace static_obj_loader
 
 
 		void fillMapWithKeysToDraw(int i);
-		bool proceedMtlFile(const std::string& fileName);
 		// get/set
 		const auto getUseMtlNames() const { return m_usemtlNames; }
 		const auto getAmountOfVertices() const { return m_vertexIndices; }
@@ -85,25 +86,31 @@ namespace static_obj_loader
 	unsigned int loadTextureFromFile(const std::string& path);
 }
 
+
 namespace convert_to_binary_pdd
 {
+
 	struct PddMeshData
 	{
 		glm::vec3 vertices{};
+		glm::vec3 normal{};
 		glm::vec2 textures{};
-		glm::vec3 normals{};
 	};
 
 
 	const char signature[] = "PIDD";
-	
-	inline std::vector<unsigned int> outIndicesCount;
 
+
+	inline std::unordered_map<std::string, loader_constant_data::MaterialsPicturesData> materialsPicturesFilesFromMtlData;
+	inline std::vector<unsigned int> outIndicesCount;
+	inline std::vector<unsigned int> indicesToDrawPart;
+	inline std::vector<std::string> useMtlNames;
 
 	void createPddFileFromObj(const std::filesystem::path& fileName,
-		unsigned int verticesCount, unsigned int texturesCount, unsigned int normalsCount, unsigned int indicesCount,
-		std::vector<loader_constant_data::MeshData>& meshData);
-	void readPddFile(const std::filesystem::path& path, std::vector<PddMeshData>& pddMeshData);
+		unsigned int verticesCount, unsigned int texturesCount,
+		unsigned int normalsCount, unsigned int indicesCount,
+		std::vector<loader_constant_data::MeshData>& meshData, std::vector<unsigned int>& indicesToDrawPart, std::vector<std::string>& model_useMtlNames);
+	std::vector<PddMeshData> readPddFile(const std::filesystem::path& path);
 }
 
 #endif
