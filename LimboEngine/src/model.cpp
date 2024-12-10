@@ -259,9 +259,15 @@ namespace static_obj_loader
 		{
 			std::cout << "File type is - .obj\n";
 			std::cout << "m_outVertexIndices.size(): " << m_outVertexIndices.size() << '\n';
+
+			loader_constant_data::MeshDataCounts meshDataCounts;
+			meshDataCounts.verticesCount = tempVertices.size();
+			meshDataCounts.normalsCount = tempNormal.size();
+			meshDataCounts.texturesCount = tempTextures.size();
+			meshDataCounts.indicesCount = m_outVertexIndices.size();
+
 			convert_to_binary_pdd::createPddFileFromObj(path, 
-				tempVertices.size(),  tempTextures.size(),
-				tempNormal.size(), m_outVertexIndices.size(), meshData, m_indicesToDrawPart, m_usemtlNames);
+				meshDataCounts, meshData, m_indicesToDrawPart, m_usemtlNames);
 		}
 
 		return true;
@@ -319,15 +325,17 @@ namespace static_obj_loader
 */
 namespace convert_to_binary_pdd
 {
-	void createPddFileFromObj(const std::filesystem::path& fileName,
-		unsigned int verticesCount, unsigned int texturesCount, 
-		unsigned int normalsCount, unsigned int indicesCount,
-		std::vector<loader_constant_data::MeshData>& meshData, std::vector<unsigned int>& indicesToDrawPart,
-		std::vector<std::string>& model_useMtlNames)
+	void createPddFileFromObj
+	(
+		const std::filesystem::path& fileName,
+		const loader_constant_data::MeshDataCounts& meshDataCount,
+		const std::vector<loader_constant_data::MeshData>& meshData, 
+		const std::vector<unsigned int>& indicesToDrawPart,
+		const std::vector<std::string>& model_useMtlNames)
 	{
-		std::filesystem::path currentFileName = fileName.filename();
-		currentFileName.replace_extension(".pdd");
-		std::ofstream pddFile(currentFileName, std::ios::binary);
+		std::filesystem::path currentFile = fileName;
+		currentFile.replace_extension(".pdd");
+		std::ofstream pddFile(currentFile, std::ios::binary);
 		if (!pddFile)
 		{
 			std::cout << "Unable to proceed ur file!";
@@ -337,13 +345,13 @@ namespace convert_to_binary_pdd
 		pddFile.write(reinterpret_cast<const char*>(&signature), sizeof(signature));
 	
 		// count of vertices
-		pddFile.write(reinterpret_cast<const char*>(&verticesCount), sizeof(verticesCount));
+		pddFile.write(reinterpret_cast<const char*>(&meshDataCount.verticesCount), sizeof(meshDataCount.verticesCount));
 		// count of normals
-		pddFile.write(reinterpret_cast<const char*>(&normalsCount), sizeof(normalsCount));
+		pddFile.write(reinterpret_cast<const char*>(&meshDataCount.normalsCount), sizeof(meshDataCount.normalsCount));
 		// count of textures
-		pddFile.write(reinterpret_cast<const char*>(&texturesCount), sizeof(texturesCount));
+		pddFile.write(reinterpret_cast<const char*>(&meshDataCount.texturesCount), sizeof(meshDataCount.texturesCount));
 		// count of indices to draw
-		pddFile.write(reinterpret_cast<const char*>(&indicesCount), sizeof(indicesCount));
+		pddFile.write(reinterpret_cast<const char*>(&meshDataCount.indicesCount), sizeof(meshDataCount.indicesCount));
 
 		//////// writing their data
 		pddFile.write(reinterpret_cast<const char*>(meshData.data()),
@@ -376,9 +384,8 @@ namespace convert_to_binary_pdd
 		pddFile.close();
 	}
 
-	std::vector<PddMeshData> readPddFile(const std::filesystem::path& path)
+	void readPddFile(const std::filesystem::path& path, std::vector<PddMeshData>& pddMeshData)
 	{
-
 		std::ifstream pddFile(path, std::ios::binary);
 		if (!pddFile)
 		{
@@ -394,7 +401,6 @@ namespace convert_to_binary_pdd
 		unsigned int indicesCount;
 		unsigned int indicesToDrawPartCount;
 		unsigned int useMtlCount;
-		std::vector<PddMeshData> pddMeshData;
 
 		pddFile.read(fileSignature, sizeof(signature));
 		if (strcmp(fileSignature, "PIDD") != 0)
@@ -444,9 +450,9 @@ namespace convert_to_binary_pdd
 
 		pddFile.close();
 
+		// proceed MTL data
 		loader_constant_data::proceedMtlFile(path);
 
-		return pddMeshData;
 	}
 
 }

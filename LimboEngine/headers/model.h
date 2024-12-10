@@ -18,7 +18,13 @@
 
 namespace loader_constant_data
 {
-
+	struct MeshDataCounts
+	{
+		unsigned int verticesCount{};
+		unsigned int normalsCount{};
+		unsigned int texturesCount{};
+		unsigned int indicesCount{};
+	};
 	struct MeshData
 	{
 		glm::vec3 vertices{};
@@ -107,10 +113,11 @@ namespace convert_to_binary_pdd
 	inline std::vector<std::string> useMtlNames;
 
 	void createPddFileFromObj(const std::filesystem::path& fileName,
-		unsigned int verticesCount, unsigned int texturesCount,
-		unsigned int normalsCount, unsigned int indicesCount,
-		std::vector<loader_constant_data::MeshData>& meshData, std::vector<unsigned int>& indicesToDrawPart, std::vector<std::string>& model_useMtlNames);
-	std::vector<PddMeshData> readPddFile(const std::filesystem::path& path);
+		const loader_constant_data::MeshDataCounts& meshDataCount,
+		const std::vector<loader_constant_data::MeshData>& meshData,
+		const std::vector<unsigned int>& indicesToDrawPart,
+		const std::vector<std::string>& model_useMtlNames);
+	void readPddFile(const std::filesystem::path& path, std::vector<PddMeshData>& pddMeshData);
 }
 
 #endif

@@ -66,10 +66,6 @@ void DisplayModel::Draw(Shader& shader)
 		glDrawElements(GL_TRIANGLES, x, GL_UNSIGNED_INT, (void*)(offset * sizeof(unsigned int)));
 		//glDrawArrays(GL_TRIANGLES, 0, model.m_outVertices.size());
 		glBindVertexArray(0);
-	
-		
-
 		offset = (unsigned int)x;
-		
 	}
 }

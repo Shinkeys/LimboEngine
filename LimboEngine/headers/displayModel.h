@@ -21,10 +21,12 @@ public:
 		{
 			static_obj_loader::Model model;
 			model.loadModel(path);
+			std::cout << "CONVERTED MODEL TO BINARY! REPLACE PATH ON THE NEW FILE";
+			std::exit(EXIT_SUCCESS);
 		}
 		else if (path.extension() == ".pdd")
 		{
-			pddMeshData = convert_to_binary_pdd::readPddFile(path);
+			convert_to_binary_pdd::readPddFile(path, pddMeshData);
 		}
 		
 		setupOpenGLMeshData();

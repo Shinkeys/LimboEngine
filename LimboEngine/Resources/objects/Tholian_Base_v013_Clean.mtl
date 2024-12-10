@@ -1,0 +1,232 @@
+# Blender 4.3.0 MTL File: 'None'
+# www.blender.org
+
+newmtl material_1
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_1_ca.png
+map_Bump material_1_ng.png
+
+newmtl material_10
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_10_ca.png
+map_Bump material_2_ng.png
+
+newmtl material_11
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_11_ca.png
+map_Bump material_5_ng.png
+
+newmtl material_12
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_12_ca.png
+map_Bump material_12_ng.png
+
+newmtl material_13
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.900000 0.900000 0.900000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 0.350000
+illum 9
+
+newmtl material_14
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_14_ca.png
+map_Bump material_12_ng.png
+
+newmtl material_15
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd material_15_ca.png
+map_d material_15_ca.png
+map_Bump material_15_ng.png
+
+newmtl material_16
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_16_ca.png
+map_Bump material_12_ng.png
+
+newmtl material_17
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_17_ca.png
+map_Bump material_3_ng.png
+
+newmtl material_18
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_18_ca.png
+map_Bump material_1_ng.png
+
+newmtl material_19
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_19_ca.png
+map_Bump material_5_ng.png
+
+newmtl material_2
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_2_ca.png
+map_Bump material_2_ng.png
+
+newmtl material_20
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_20_ca.png
+map_Bump material_1_ng.png
+
+newmtl material_21
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_21_ca.png
+map_Bump material_3_ng.png
+
+newmtl material_3
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_3_ca.png
+map_Bump material_3_ng.png
+
+newmtl material_4
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_4_ca.png
+map_Bump material_2_ng.png
+
+newmtl material_5
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_5_ca.png
+map_Bump material_5_ng.png
+
+newmtl material_6
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_6_ca.png
+map_Bump material_1_ng.png
+
+newmtl material_7
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_7_ca.png
+map_Bump material_3_ng.png
+
+newmtl material_8
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_8_ca.png
+map_Bump material_2_ng.png
+
+newmtl material_9
+Ns 94.999985
+Ka 1.000000 1.000000 1.000000
+Ks 0.100000 0.100000 0.100000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd material_9_ca.png
+map_Bump material_5_ng.png
