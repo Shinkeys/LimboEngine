@@ -99,6 +99,12 @@ namespace loader_constant_data
 
 				tempMaterialsPicFilesData.emissionMap = static_obj_loader::loadTextureFromFile(tempMaterialPicFileName);
 			}
+			else if (strcmp(lineHeader, "map_Ks") == 0)
+			{
+				iss >> tempMaterialPicFileName;
+
+				tempMaterialsPicFilesData.specularMap = static_obj_loader::loadTextureFromFile(tempMaterialPicFileName);
+			}
 			else if ((strcmp(lineHeader, "map_Bump") == 0) || (strcmp(lineHeader, "bump") == 0))
 			{
 				iss >> tempMaterialPicFileName;
@@ -116,6 +122,7 @@ namespace loader_constant_data
 				}
 			}
 		}
+		return true;
 	}
 }
 namespace static_obj_loader
@@ -369,6 +376,8 @@ namespace convert_to_binary_pdd
 		unsigned int useMtlNamesSize = model_useMtlNames.size();
 		pddFile.write(reinterpret_cast<const char*>(&useMtlNamesSize), sizeof(useMtlNamesSize));
 		// writing its data
+
+		
 		pddFile.write(reinterpret_cast<const char*>(model_useMtlNames.data()),
 			sizeof(std::string) * model_useMtlNames.size());
 		
@@ -378,7 +387,6 @@ namespace convert_to_binary_pdd
 		//std::cout << texturesCount << '\n';
 		//std::cout << normalsCount << '\n';
 		//std::cout << indicesCount << '\n';
-		
 		/*std::cout << reinterpret_cast<const char*>(&indicesCount), sizeof(verticesCount);*/
 
 		pddFile.close();
@@ -452,6 +460,7 @@ namespace convert_to_binary_pdd
 
 		// proceed MTL data
 		loader_constant_data::proceedMtlFile(path);
+
 
 	}
 

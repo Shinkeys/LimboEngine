@@ -49,6 +49,7 @@ namespace loader_constant_data
 		unsigned int diffuseMap{ 0 };
 		unsigned int emissionMap{ 0 };
 		unsigned int normalMap{ 0 };
+		unsigned int specularMap{ 0 };
 	};
 	bool proceedMtlFile(const std::filesystem::path& fileName);
 }
@@ -73,9 +74,6 @@ namespace static_obj_loader
 
 
 
-		std::unordered_map<unsigned int, loader_constant_data::MaterialsData> m_materialsValues;
-		// hold indices of textures loaded by stbi_load for current usemtl
-		std::unordered_map<std::string, loader_constant_data::MaterialsPicturesData> m_materialsPicturesFilesFromMtlData;
 
 
 		void fillMapWithKeysToDraw(int i);
@@ -117,6 +115,8 @@ namespace convert_to_binary_pdd
 		const std::vector<loader_constant_data::MeshData>& meshData,
 		const std::vector<unsigned int>& indicesToDrawPart,
 		const std::vector<std::string>& model_useMtlNames);
+
+
 	void readPddFile(const std::filesystem::path& path, std::vector<PddMeshData>& pddMeshData);
 }
 

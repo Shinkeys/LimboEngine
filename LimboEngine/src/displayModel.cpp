@@ -9,7 +9,7 @@ void DisplayModel::setupOpenGLMeshData()
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	
-	// to change glm::vec3 on MeshData
+	
 	glBufferData(GL_ARRAY_BUFFER, pddMeshData.size() * sizeof(convert_to_binary_pdd::PddMeshData), &pddMeshData[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
@@ -17,7 +17,7 @@ void DisplayModel::setupOpenGLMeshData()
 		&convert_to_binary_pdd::outIndicesCount[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	// to change glm::vec3 on MeshData
+	
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(convert_to_binary_pdd::PddMeshData), (void*)0);
 
 
@@ -33,34 +33,38 @@ void DisplayModel::setupOpenGLMeshData()
 void DisplayModel::Draw(Shader& shader)
 {
 	unsigned int offset = 0;
-	unsigned int i = 0;
 	unsigned int j = 0;
 	std::string name;
 	std::string currentNameOfMtlForCurrentIndices;
 	for (const auto& x : convert_to_binary_pdd::indicesToDrawPart)
 	{
-		currentNameOfMtlForCurrentIndices = convert_to_binary_pdd::useMtlNames[j];
-		++j;
-
+		if (j < convert_to_binary_pdd::useMtlNames.size())
+		{
+			currentNameOfMtlForCurrentIndices = convert_to_binary_pdd::useMtlNames[j];
+			++j;
+		}
 		if (convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].diffuseMap) {
 			name = "material.texture_diffuse";
-			glUniform1i(glGetUniformLocation(shader.ID, name.c_str()), i);
-			glBindTextureUnit(i, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].diffuseMap);
-			++i;
+			glUniform1i(shader.materialUniforms.diffuseLocation, 0);
+			glBindTextureUnit(0, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].diffuseMap);
 		}
 		if (convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].normalMap)
 		{
 			name = "material.texture_normal";
-			glUniform1i(glGetUniformLocation(shader.ID, name.c_str()), i);
-			glBindTextureUnit(i, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].normalMap);
-			++i;
+			glUniform1i(shader.materialUniforms.normalLocation, 1);
+			glBindTextureUnit(1, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].normalMap);
 		}
 		if (convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].emissionMap)
 		{
 			name = "material.texture_emission";
-			glUniform1i(glGetUniformLocation(shader.ID, name.c_str()), i);
-			glBindTextureUnit(i, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].emissionMap);
-			++i;
+			glUniform1i(shader.materialUniforms.emissionLocation, 2);
+			glBindTextureUnit(2, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].emissionMap);
+		}
+		if (convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].specularMap)
+		{
+			name = "material.texture_specular";
+			glUniform1i(shader.materialUniforms.specularLocation, 3);
+			glBindTextureUnit(3, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].specularMap);
 		}
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, x, GL_UNSIGNED_INT, (void*)(offset * sizeof(unsigned int)));
@@ -68,4 +72,5 @@ void DisplayModel::Draw(Shader& shader)
 		glBindVertexArray(0);
 		offset = (unsigned int)x;
 	}
+	
 }

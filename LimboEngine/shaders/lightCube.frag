@@ -4,9 +4,9 @@ out vec4 FragColor;
 struct Material{
 	sampler2D texture_diffuse;
 	sampler2D texture_normal;
-	sampler2D texture_roughness;
-	sampler2D texture_specular;
 	sampler2D texture_emission;
+//	sampler2D texture_roughness;
+	sampler2D texture_specular;
 };
 
 
@@ -20,7 +20,7 @@ void main()
 {
 	vec3 diffuse = texture(material.texture_diffuse, TexCoords).rgb;
 	vec3 specular = texture(material.texture_specular, TexCoords).rgb;
-
+	vec3 emission = texture(material.texture_emission, TexCoords).rbg;
 
 	vec3 normalMap = normalize(Normal);
     normalMap = normalize(normalMap * 2.0 - 1.0);
@@ -41,7 +41,7 @@ void main()
 	vec3 ambient = 0.1 * diffuse;
 
 
-	vec3 res = (ambient + diff * diffuse + spec * specular);	
+	vec3 res = (ambient + diff * diffuse + spec * specular + emission);	
 
 	FragColor = vec4(res, 1.0);
 }

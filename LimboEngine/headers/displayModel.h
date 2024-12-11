@@ -11,7 +11,7 @@
 class DisplayModel
 {
 private:
-	unsigned int VAO, VBO, EBO;
+	unsigned int VAO{}, VBO{}, EBO{};
 	std::vector<convert_to_binary_pdd::PddMeshData> pddMeshData;
 	void setupOpenGLMeshData();
 public:
@@ -22,7 +22,7 @@ public:
 			static_obj_loader::Model model;
 			model.loadModel(path);
 			std::cout << "CONVERTED MODEL TO BINARY! REPLACE PATH ON THE NEW FILE";
-			std::exit(EXIT_SUCCESS);
+
 		}
 		else if (path.extension() == ".pdd")
 		{
@@ -31,11 +31,17 @@ public:
 		
 		setupOpenGLMeshData();
 	}
-	
+	~DisplayModel()
+	{
+		glDeleteBuffers(1, &VBO);
+		glDeleteBuffers(1, &EBO);
+		glDeleteVertexArrays(1, &VAO);
+		pddMeshData.clear();
+	}
+	DisplayModel(DisplayModel&& obj) noexcept : pddMeshData{ obj.pddMeshData }
+	{
+		obj.pddMeshData.clear();
+	}
 	void Draw(Shader& shader);
 };
-
-
-
-
 #endif

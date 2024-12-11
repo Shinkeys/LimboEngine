@@ -3,7 +3,6 @@
 
 #include "../headers/shader.h"
 #include "../headers/camera.h"
-#include "../headers/model.h"
 #include "../headers/displayModel.h"
 
 #include <glm/gtc/matrix_transform.hpp> 
@@ -13,12 +12,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../headers/stb_image.h"
 
-//#include "../headers/math.h"
-
-
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 
 
 struct Meshes {
@@ -99,8 +92,8 @@ int main() {
 	glFrontFace(GL_CCW);
 	Shader lamp("shaders/lamp.vert", "shaders/lamp.frag");
 	Shader lightCubeShader("shaders/lightCube.vert", "shaders/lightCube.frag");
-	std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/viking.pdd";
-	/*std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/viking.obj";*/
+	std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/character.pdd";
+	/*std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/character.obj";*/
 	DisplayModel dModel(pathToTheModel);
 	
 	Meshes mesh;
@@ -185,9 +178,9 @@ int main() {
 
 
 	// light cube gen
-	unsigned int lightCubeVAO;
-	glGenVertexArrays(1, &lightCubeVAO);
-	glBindVertexArray(lightCubeVAO);
+	unsigned int lampVAO;
+	glGenVertexArrays(1, &lampVAO);
+	glBindVertexArray(lampVAO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, 0, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
@@ -203,6 +196,7 @@ int main() {
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 	}
 
+	lightCubeShader.initializeUniformData();
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -251,14 +245,14 @@ int main() {
 
 
 
-		glBindVertexArray(lightCubeVAO);
+		glBindVertexArray(lampVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 	glDeleteVertexArrays(1, &VAO);
-	glDeleteVertexArrays(1, &lightCubeVAO);
+	glDeleteVertexArrays(1, &lampVAO);
 	glDeleteBuffers(1, &VBO);
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.

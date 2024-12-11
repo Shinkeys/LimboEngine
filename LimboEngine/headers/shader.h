@@ -9,10 +9,28 @@
 #include <fstream>
 #include <sstream>
 
+struct UniformData
+{
+	int diffuseLocation{};
+	int normalLocation{};
+	int emissionLocation{};
+	int specularLocation{};
+};
+
+
+
 class Shader {
 public: 
 	unsigned int ID; // program ID
     // constructor reads and builds the shader
+	UniformData materialUniforms;
+	void initializeUniformData()
+	{
+		materialUniforms.diffuseLocation = glGetUniformLocation(ID, "material.texture_diffuse");
+		materialUniforms.normalLocation = glGetUniformLocation(ID, "material.texture_normal");
+		materialUniforms.emissionLocation = glGetUniformLocation(ID, "material.texture_emission");
+		materialUniforms.specularLocation = glGetUniformLocation(ID, "material.texture_specular");
+	}
 Shader(const char* vertexPath, const char* fragmentPath) 
 {
 	std::string vertexCode;
@@ -57,8 +75,8 @@ Shader(const char* vertexPath, const char* fragmentPath)
 	vertex = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex, 1, &vShaderCode, NULL);
 	glCompileShader(vertex);
-
-	glGetShaderiv(vertex, GL_LINK_STATUS, &success);
+	
+	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
 		glGetShaderInfoLog(vertex, 512, NULL, infoLog);
@@ -70,7 +88,7 @@ Shader(const char* vertexPath, const char* fragmentPath)
 	glShaderSource(fragment, 1, &fShaderCode, NULL);
 	glCompileShader(fragment);
 
-	glGetShaderiv(fragment, GL_LINK_STATUS, &success);
+	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
 		glGetShaderInfoLog(fragment, 512, NULL, infoLog);
