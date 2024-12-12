@@ -43,7 +43,6 @@ namespace loader_constant_data
 			{
 				iss >> tempMaterialName;
 
-
 			}
 			else if (strcmp(lineHeader, "Ns") == 0)
 			{
@@ -114,7 +113,7 @@ namespace loader_constant_data
 			else
 			{
 				/*m_materialsValues[indexToDrawPart] = tempMaterialsData;*/
-				if (tempMaterialPicFileName != "")
+				if (tempMaterialPicFileName != "" || ((tempMaterialPicFileName != "") && (file.peek() == EOF)))
 				{
 					convert_to_binary_pdd::materialsPicturesFilesFromMtlData[tempMaterialName] = tempMaterialsPicFilesData;
 					std::cout << "Proceed mtl file data: " <<
@@ -284,6 +283,7 @@ namespace static_obj_loader
 	{
 		std::filesystem::path basePath = "../LimboEngine/Resources/objects/textures/";
 		std::filesystem::path pathToOpen = basePath / fileName;
+		stbi_set_flip_vertically_on_load(true);
 		std::cout << "Texture: " << fileName << '\n';
 		unsigned int textureID;
 		glGenTextures(1, &textureID);
@@ -377,9 +377,12 @@ namespace convert_to_binary_pdd
 		pddFile.write(reinterpret_cast<const char*>(&useMtlNamesSize), sizeof(useMtlNamesSize));
 		// writing its data
 
-		
-		pddFile.write(reinterpret_cast<const char*>(model_useMtlNames.data()),
-			sizeof(std::string) * model_useMtlNames.size());
+		for (unsigned int i = 0; i < useMtlNamesSize; ++i)
+		{
+			std::size_t size = model_useMtlNames[i].length();
+			pddFile.write(reinterpret_cast<const char*>(&size), sizeof(size));
+			pddFile.write(reinterpret_cast<const char*>(model_useMtlNames[i].c_str()), model_useMtlNames[i].length());
+		}
 		
 		std::cout << "\nMeshDataSize: " << meshData.size() << '\n';
 		////// writing indices count
@@ -443,10 +446,16 @@ namespace convert_to_binary_pdd
 
 		pddFile.read(reinterpret_cast<char*>(&useMtlCount), sizeof(useMtlCount));
 		
+		// reading strings of mtl names
 		useMtlNames.resize(useMtlCount);
 
-		pddFile.read(reinterpret_cast<char*>(useMtlNames.data()),
-			sizeof(std::string) * useMtlNames.size());
+		for (unsigned int i = 0; i < useMtlCount; ++i)
+		{
+			std::size_t size;
+			pddFile.read(reinterpret_cast<char*>(&size), sizeof(size));
+			useMtlNames[i].resize(size);
+			pddFile.read(reinterpret_cast<char*>((char*)useMtlNames[i].c_str()), size);
+		}
 
 		outIndicesCount.reserve(indicesCount);
 

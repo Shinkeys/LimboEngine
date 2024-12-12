@@ -41,7 +41,7 @@ void main()
 	vec3 ambient = 0.1 * diffuse;
 
 
-	vec3 res = (ambient + diff * diffuse + spec * specular + emission);	
+	vec3 res = (ambient + diff * diffuse + spec * specular);	
 
 	FragColor = vec4(res, 1.0);
 }
