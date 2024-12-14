@@ -1,11 +1,11 @@
 #include "openglBackend.h"
 namespace Default_Values
 {
-	
+	// window
+	GLFWwindow* window{};
 	// settings
-	constexpr unsigned int SCR_WIDTH = 1920;
-	constexpr unsigned int SCR_HEIGHT = 1080;
-
+	const unsigned int SCR_WIDTH = 1920;
+	const unsigned int SCR_HEIGHT = 1080;
 	// movement
 	float deltaTime{ 0.0f };
 	float lastTime{ 0.0f };
@@ -15,36 +15,13 @@ namespace Default_Values
 	float lastY{ SCR_HEIGHT / 2.0f };
 
 	glm::vec3 lightPos = glm::vec3(0.0f, 1.0f, 3.0f);
-	
+
 	// camera
 	Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-	// cursor
-	extern bool cursorState{ false };
+
 }
-
-
-namespace OpenGL_Backend
-{
-	GLuint g_vertexArray{ 0 };
-	GLuint g_vertexBuffer{ 0 };
-	GLuint g_elementBuffer{ 0 };
-
-	GLuint getVertexVAO()
-	{
-		return g_vertexArray;
-	}
-	GLuint getVertexVBO()
-	{
-		return g_vertexBuffer;
-	}
-	GLuint getElementBuffer()
-	{
-		return g_elementBuffer;
-	}
-
-
-	int initialization()
+	int OpenGl_Backend::initialization()
 	{	
 		// glfw: initialize and configure
 		glfwInit();
@@ -58,18 +35,18 @@ namespace OpenGL_Backend
 #endif
 		// glfw window creation
 	// --------------------
-		GLFWwindow* window = glfwCreateWindow(Default_Values::SCR_WIDTH,
+		Default_Values::window = glfwCreateWindow(Default_Values::SCR_WIDTH,
 			Default_Values::SCR_HEIGHT, "LimboEngine", NULL, NULL);
-		if (window == NULL)
+		if (Default_Values::window == NULL)
 		{
 			std::cout << "Failed to create GLFW window" << std::endl;
 			glfwTerminate();
 			return -1;
 		}
-		glfwMakeContextCurrent(window);
-		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-		glfwSetKeyCallback(window, processInputMode_callback);
-		glfwSetCursorPosCallback(window, mouse_callback);
+		glfwMakeContextCurrent(Default_Values::window);
+		glfwSetFramebufferSizeCallback(Default_Values::window, framebuffer_size_callback);
+		glfwSetKeyCallback(Default_Values::window, processInputMode_callback);
+		glfwSetCursorPosCallback(Default_Values::window, mouse_callback);
 
 
 		// glad: load all OpenGL function pointers
@@ -90,7 +67,7 @@ namespace OpenGL_Backend
 		}
 	}
 
-	void drawUnskinnedByVBO(std::vector<float>& vertices)
+	void OpenGl_Backend::setupUnskinnedByVBO(std::vector<float>& vertices)
 	{
 		glGenBuffers(1, &g_vertexBuffer);
 
@@ -107,7 +84,7 @@ namespace OpenGL_Backend
 		glEnableVertexAttribArray(0);
 	}
 	
-	void drawUnskinnedByEBO(std::vector<float>& vertices, std::vector<uint32_t>& indices)
+	void OpenGl_Backend::setupUnskinnedByEBO(std::vector<float>& vertices, std::vector<uint32_t>& indices)
 	{
 		glGenBuffers(1, &g_vertexBuffer);
 		glGenBuffers(1, &g_elementBuffer);
@@ -127,7 +104,7 @@ namespace OpenGL_Backend
 
 	}
 
-	void deleteGlData()
+	void OpenGl_Backend::deleteGlData()
 	{
 		glDeleteVertexArrays(1, &g_vertexArray);
 		glDeleteBuffers(1, &g_vertexBuffer);
@@ -137,6 +114,87 @@ namespace OpenGL_Backend
 		glfwTerminate();
 	}
 
+	///// CALLBACKS ///////
+
+	void mouse_callback(GLFWwindow* window, double xPos, double yPos)
+	{
+		if (Default_Values::firstMove) {
+			Default_Values::lastX = xPos;
+			Default_Values::lastY = yPos;
+			Default_Values::firstMove = false;
+		}
+		// offset - AMOUNT of movement in 1 flick
+		float xOffset = xPos - Default_Values::lastX;
+		float yOffset = Default_Values::lastY - yPos;
+		Default_Values::lastX = xPos;
+		Default_Values::lastY = yPos;
+
+		Default_Values::camera.processMouse(xOffset, yOffset);
+
+
+	}
+	void processInput(GLFWwindow* window)
+	{
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			glfwSetWindowShouldClose(window, true);
+
+
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			Default_Values::camera.processKeyboard(CameraMovement::forward, Default_Values::deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			Default_Values::camera.processKeyboard(CameraMovement::backward, Default_Values::deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			Default_Values::camera.processKeyboard(CameraMovement::left, Default_Values::deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			Default_Values::camera.processKeyboard(CameraMovement::right, Default_Values::	deltaTime);
+
+
+
+
+	}
+
+	void OpenGl_Backend::lightMove(GLFWwindow* window)
+	{
+		const float speed = 2.5f * Default_Values::deltaTime;
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+			Default_Values::lightPos.x -= speed;
+		}
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+			Default_Values::lightPos.x += speed;
+		}
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+			Default_Values::lightPos.z -= speed;
+		}
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+			Default_Values::lightPos.z += speed;
+		}
+	}
+
+	void processInputMode_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS)
+		{
+			Camera::setCursorState();
+		}
+
+
+		if (Camera::getCursorState())
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+		}
+		else
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+	}
+	// glfw: whenever the window size changed (by OS or user resize) this callback function executes
+// ---------------------------------------------------------------------------------------------
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	// make sure the viewport matches the new window dimensions; note that width and 
+	// height will be significantly larger than specified on retina displays.
+	glViewport(0, 0, width, height);
+}
 
 	void APIENTRY glDebugOutput(GLenum source,
 		GLenum type,
@@ -186,77 +244,4 @@ namespace OpenGL_Backend
 	}
 
 
-	///// CALLBACKS ///////
 
-	void mouse_callback(GLFWwindow* window, double xPos, double yPos)
-	{
-		if (Default_Values::firstMove) {
-			Default_Values::lastX = xPos;
-			Default_Values::lastY = yPos;
-			Default_Values::firstMove = false;
-		}
-		// offset - AMOUNT of movement in 1 flick
-		float xOffset = xPos - Default_Values::lastX;
-		float yOffset = Default_Values::lastY - yPos;
-		Default_Values::lastX = xPos;
-		Default_Values::lastY = yPos;
-
-		Default_Values::camera.processMouse(xOffset, yOffset);
-
-
-	}
-	void processInput(GLFWwindow* window)
-	{
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-			glfwSetWindowShouldClose(window, true);
-
-
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			Default_Values::camera.processKeyboard(CameraMovement::forward, Default_Values::deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			Default_Values::camera.processKeyboard(CameraMovement::backward, Default_Values::deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			Default_Values::camera.processKeyboard(CameraMovement::left, Default_Values::deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			Default_Values::camera.processKeyboard(CameraMovement::right, Default_Values::	deltaTime);
-
-
-
-
-	}
-
-	void lightMove(GLFWwindow* window)
-	{
-		const float speed = 2.5f * Default_Values::deltaTime;
-		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-			Default_Values::lightPos.x -= speed;
-		}
-		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-			Default_Values::lightPos.x += speed;
-		}
-		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-			Default_Values::lightPos.z -= speed;
-		}
-		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-			Default_Values::lightPos.z += speed;
-		}
-	}
-
-	void processInputMode_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-	{
-		if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS)
-		{
-			cursorState = !cursorState;
-		}
-
-
-		if (cursorState)
-		{
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
-		}
-		else
-		{
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		}
-	}
-}

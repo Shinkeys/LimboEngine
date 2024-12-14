@@ -20,11 +20,6 @@ const float g_pitch{ 0.0f };
 const float g_sensitivity{ 0.1f };
 const float g_speed{ 2.5f };
 
-
-bool cursorState;
-
-
-
 class Camera
 {
 public:
@@ -40,6 +35,8 @@ public:
 	// camera options
 	float MovementSpeed;
 	float Sensitivity;
+
+	inline static bool cursorState;
 
 	Camera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = g_yaw, float pitch = g_pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(g_speed), Sensitivity(g_sensitivity)
 	{
@@ -113,6 +110,8 @@ public:
 		updateCamVectors();
 	}
 
+	static void setCursorState() { cursorState = !cursorState; }
+	static const auto  getCursorState() { return cursorState; }
 
 private:
 	void updateCamVectors()
