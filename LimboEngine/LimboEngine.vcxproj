@@ -141,6 +141,7 @@
     <ClCompile Include="src\displayModel.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\model.cpp" />
+    <ClCompile Include="src\render\render.cpp" />
     <ClCompile Include="vendor\glad\src\glad.c" />
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +151,7 @@
     <ClInclude Include="headers\model.h" />
     <ClInclude Include="headers\shader.h" />
     <ClInclude Include="headers\stb_image.h" />
+    <ClInclude Include="src\render\render.h" />
     <ClInclude Include="vendor\glad\include\glad\glad.h" />
     <ClInclude Include="vendor\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="vendor\GLFW\include\GLFW\glfw3native.h" />
@@ -165,6 +167,8 @@
     <None Include="shaders\lamp.vert" />
     <None Include="shaders\character.frag" />
     <None Include="shaders\character.vert" />
+    <None Include="shaders\shadowDepth.frag" />
+    <None Include="shaders\shadowDepth.vert" />
     <None Include="vendor\assimp\bin\Debug\assimp-vc143-mtd.dll" />
     <None Include="vendor\assimp\lib\Debug\assimp-vc143-mtd.dll" />
     <None Include="vendor\assimp\lib\Debug\assimp-vc143-mtd.exp" />

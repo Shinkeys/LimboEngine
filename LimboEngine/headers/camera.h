@@ -38,7 +38,9 @@ public:
 
 	inline static bool cursorState;
 
-	Camera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = g_yaw, float pitch = g_pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(g_speed), Sensitivity(g_sensitivity)
+	Camera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
+		float yaw = g_yaw, float pitch = g_pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+		MovementSpeed(g_speed), Sensitivity(g_sensitivity)
 	{
 		Position = pos;
 		WorldUp = up;
@@ -46,7 +48,8 @@ public:
 		Pitch = pitch;
 		updateCamVectors();
 	}
-	Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(g_speed), Sensitivity(g_sensitivity)
+	Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
+		: Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(g_speed), Sensitivity(g_sensitivity)
 	{
 		Position = glm::vec3(posX, posY, posZ);
 		WorldUp = glm::vec3(upX, upY, upZ);

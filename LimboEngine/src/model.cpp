@@ -281,7 +281,7 @@ namespace static_obj_loader
 
 	unsigned int loadTextureFromFile(const std::string& fileName, int keyForDiffuseMapForGamma)
 	{
-		std::filesystem::path basePath = "../LimboEngine/Resources/objects/textures/";
+		std::filesystem::path basePath = "../Resources/objects/textures/";
 		std::filesystem::path pathToOpen = basePath / fileName;
 		stbi_set_flip_vertically_on_load(true);
 		std::cout << "Texture: " << fileName << '\n';

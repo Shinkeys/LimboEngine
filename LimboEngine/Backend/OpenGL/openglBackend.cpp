@@ -6,6 +6,10 @@ namespace Default_Values
 	// settings
 	const unsigned int SCR_WIDTH = 1920;
 	const unsigned int SCR_HEIGHT = 1080;
+
+	// shadows
+	const unsigned int SHADOW_WIDTH = 1024;
+	const unsigned int SHADOW_HEIGHT = 1024;
 	// movement
 	float deltaTime{ 0.0f };
 	float lastTime{ 0.0f };
@@ -69,12 +73,12 @@ namespace Default_Values
 
 	void OpenGl_Backend::setupUnskinnedByVBO(std::vector<float>& vertices)
 	{
-		glGenBuffers(1, &g_vertexBuffer);
+		glGenBuffers(1, &m_vertexBuffer);
 
-		glGenVertexArrays(1, &g_vertexArray);
-		glBindVertexArray(g_vertexArray);
+		glGenVertexArrays(1, &m_vertexArray);
+		glBindVertexArray(m_vertexArray);
 
-		glBindBuffer(GL_ARRAY_BUFFER, g_vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
 
 
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
@@ -86,16 +90,16 @@ namespace Default_Values
 	
 	void OpenGl_Backend::setupUnskinnedByEBO(std::vector<float>& vertices, std::vector<uint32_t>& indices)
 	{
-		glGenBuffers(1, &g_vertexBuffer);
-		glGenBuffers(1, &g_elementBuffer);
+		glGenBuffers(1, &m_vertexBuffer);
+		glGenBuffers(1, &m_elementBuffer);
 
-		glGenVertexArrays(1, &g_vertexArray);
-		glBindVertexArray(g_vertexArray);
+		glGenVertexArrays(1, &m_vertexArray);
+		glBindVertexArray(m_vertexArray);
 
-		glBindBuffer(GL_ARRAY_BUFFER, g_vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_elementBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_elementBuffer);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), GL_STATIC_DRAW);
 
 
@@ -106,13 +110,17 @@ namespace Default_Values
 
 	void OpenGl_Backend::deleteGlData()
 	{
-		glDeleteVertexArrays(1, &g_vertexArray);
-		glDeleteBuffers(1, &g_vertexBuffer);
-		glDeleteBuffers(1, &g_elementBuffer);
+		glDeleteVertexArrays(1, &m_vertexArray);
+		glDeleteBuffers(1, &m_vertexBuffer);
+		glDeleteBuffers(1, &m_elementBuffer);
 
 
 		glfwTerminate();
 	}
+
+
+
+
 
 	///// CALLBACKS ///////
 

@@ -17,6 +17,9 @@ namespace Default_Values
 	// settings
 	extern const unsigned int SCR_WIDTH;
 	extern const unsigned int SCR_HEIGHT;
+	// shadow map
+	extern const unsigned int SHADOW_WIDTH;
+	extern const unsigned int SHADOW_HEIGHT;
 	// movement
 	extern float deltaTime;
 	extern float lastTime;
@@ -35,9 +38,9 @@ namespace Default_Values
 class OpenGl_Backend
 {
 private:
-	GLuint g_vertexArray{ 0 };
-	GLuint g_vertexBuffer{ 0 };
-	GLuint g_elementBuffer{ 0 };
+	GLuint m_vertexArray{ 0 };
+	GLuint m_vertexBuffer{ 0 };
+	GLuint m_elementBuffer{ 0 };
 
 
 public:
@@ -50,17 +53,17 @@ public:
 	void lightMove(GLFWwindow* window);
 
 
-	GLuint getVertexVAO()
+	GLuint getVertexVAO() const
 	{
-		return g_vertexArray;
+		return m_vertexArray;
 	}
-	GLuint getVertexVBO()
+	GLuint getVertexVBO() const
 	{
-		return g_vertexBuffer;
+		return m_vertexBuffer;
 	}
-	GLuint getElementBuffer()
+	GLuint getElementBuffer() const 
 	{
-		return g_elementBuffer;
+		return m_elementBuffer;
 	}
 };
 static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity,

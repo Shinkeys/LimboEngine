@@ -30,7 +30,7 @@ void DisplayModel::setupOpenGLMeshData()
 	glEnableVertexAttribArray(0);
 }
 
-void DisplayModel::Draw(Shader& shader)
+void DisplayModel::Draw(const Shader& shader)
 {
 	unsigned int offset = 0;
 	unsigned int j = 0;

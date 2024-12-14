@@ -15,7 +15,7 @@ private:
 	std::vector<convert_to_binary_pdd::PddMeshData> pddMeshData;
 	void setupOpenGLMeshData();
 public:
-	DisplayModel(std::filesystem::path& path)
+	DisplayModel(const std::filesystem::path& path)
 	{
 		if (path.extension() == ".obj")
 		{
@@ -42,6 +42,6 @@ public:
 	{
 		obj.pddMeshData.clear();
 	}
-	void Draw(Shader& shader);
+	void Draw(const Shader& shader);
 };
 #endif

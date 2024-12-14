@@ -5,6 +5,9 @@
 #include "../headers/camera.h"
 #include "../headers/displayModel.h"
 #include "../Backend/OpenGL/openglBackend.h"
+#include "../src/render/render.h"
+
+
 
 #include <glm/gtc/matrix_transform.hpp> 
 #include <glm/glm.hpp>
@@ -23,15 +26,14 @@ struct Meshes {
 int main() {
 	OpenGl_Backend oglBackend;
 	oglBackend.initialization();
+	OpenGLRender oglRender;
 
 	// personal settings to replace later
 	glEnable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
 	Shader lamp("shaders/lamp.vert", "shaders/lamp.frag");
 	Shader character("shaders/character.vert", "shaders/character.frag");
-	std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/character.pdd";
-	/*std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/FragataVictoria.obj";*/
-	DisplayModel dModel(pathToTheModel);
+	Shader shadows("shaders/shadowDepth.vert", "shaders/shadowDepth.frag");
 	Meshes mesh;
 	
 	std::vector<float> verticesUntextured {
@@ -95,6 +97,12 @@ int main() {
 
 
 	character.initializeUniformData();
+	
+
+	// generation of map of shadows
+	oglRender.generateShadowMapping();
+
+
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(Default_Values::window))
@@ -116,38 +124,12 @@ int main() {
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		shadows.use();
+		oglRender.drawSceneOfShadows(shadows, oglBackend);
+
 		character.use();
-		character.setVec3("lightPos", Default_Values::lightPos);
-
-
-		glm::mat4 view = Default_Values::camera.getViewMatrix();
-		character.setMat4("view", view);
-
-
-
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 
-			static_cast<float>(Default_Values::SCR_WIDTH) / 
-			static_cast<float>(Default_Values::SCR_HEIGHT), 0.1f, 100.0f);
-
-		character.setMat4("projection", projection);
-
-		glm::mat4 model = glm::mat4(1.0f);
-		character.setMat4("model", model);
-		dModel.Draw(character);
-
+		
 		lamp.use();
-
-
-		model = glm::translate(model, Default_Values::lightPos);
-		model = glm::scale(model, glm::vec3(0.3f));
-		lamp.setMat4("model", model);
-		lamp.setMat4("view", view);
-		lamp.setMat4("projection", projection);
-
-
-
-		glBindVertexArray(oglBackend.getVertexVAO());
-		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwSwapBuffers(Default_Values::window);
 		glfwPollEvents();
