@@ -27,6 +27,9 @@
     <ClCompile Include="src\displayModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Backend\OpenGL\openglBackend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vendor\GLFW\include\GLFW\glfw3.h">
@@ -53,6 +56,9 @@
     <ClInclude Include="headers\displayModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Backend\OpenGL\openglBackend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="vendor\assimp\lib\Debug\assimp-vc143-mtd.lib" />
@@ -65,8 +71,8 @@
     <None Include="vendor\assimp\lib\Debug\assimp-vc143-mtd.exp" />
     <None Include="shaders\lamp.frag" />
     <None Include="shaders\lamp.vert" />
-    <None Include="shaders\lightCube.frag" />
-    <None Include="shaders\lightCube.vert" />
+    <None Include="shaders\character.frag" />
+    <None Include="shaders\character.vert" />
     <None Include="vendor\assimp\bin\Debug\assimp-vc143-mtd.dll" />
     <None Include="vendor\assimp\lib\Debug\assimp-vc143-mtd.dll" />
   </ItemGroup>

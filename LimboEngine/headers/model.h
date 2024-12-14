@@ -87,7 +87,7 @@ namespace static_obj_loader
 
 		bool loadModel(const std::filesystem::path& path);
 	};
-	unsigned int loadTextureFromFile(const std::string& path);
+	unsigned int loadTextureFromFile(const std::string& fileName, int keyForDiffuseMapForGamma = 0);
 }
 
 

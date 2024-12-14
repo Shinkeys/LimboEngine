@@ -4,6 +4,7 @@
 #include "../headers/shader.h"
 #include "../headers/camera.h"
 #include "../headers/displayModel.h"
+#include "../Backend/OpenGL/openglBackend.h"
 
 #include <glm/gtc/matrix_transform.hpp> 
 #include <glm/glm.hpp>
@@ -67,7 +68,7 @@ int main() {
 
 	// glfw window creation
 	// --------------------
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LimboEngine", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -91,14 +92,14 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
 	Shader lamp("shaders/lamp.vert", "shaders/lamp.frag");
-	Shader lightCubeShader("shaders/lightCube.vert", "shaders/lightCube.frag");
-	std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/FragataVictoria.pdd";
+	Shader character("shaders/character.vert", "shaders/character.frag");
+	std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/character.pdd";
 	/*std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/FragataVictoria.obj";*/
 	DisplayModel dModel(pathToTheModel);
 	
 	Meshes mesh;
 
-	float vertices[] = {
+	std::vector<float> vertices {
 					// normals            // texture
 -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
  0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
@@ -165,10 +166,9 @@ int main() {
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * mesh.indices.size(), &mesh.indices[0], GL_STATIC_DRAW);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * mesh.indices.size(), &mesh.indices[0], GL_STATIC_DRAW);
 
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, 0, 8 * sizeof(float), (void*)0);
 
@@ -187,16 +187,7 @@ int main() {
 
 
 
-	int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-	{
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(glDebugOutput, nullptr);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-	}
-
-	lightCubeShader.initializeUniformData();
+	character.initializeUniformData();
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -218,21 +209,21 @@ int main() {
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		lightCubeShader.use();
-		lightCubeShader.setVec3("lightPos", lightPos);
+		character.use();
+		character.setVec3("lightPos", lightPos);
 
 
 		glm::mat4 view = camera.getViewMatrix();
-		lightCubeShader.setMat4("view", view);
+		character.setMat4("view", view);
 
 
 
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 100.0f);
-		lightCubeShader.setMat4("projection", projection);
+		character.setMat4("projection", projection);
 
 		glm::mat4 model = glm::mat4(1.0f);
-		lightCubeShader.setMat4("model", model);
-		dModel.Draw(lightCubeShader);
+		character.setMat4("model", model);
+		dModel.Draw(character);
 
 		lamp.use();
 

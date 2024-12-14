@@ -90,7 +90,7 @@ namespace loader_constant_data
 			{
 				iss >> tempMaterialPicFileName;
 
-				tempMaterialsPicFilesData.diffuseMap = static_obj_loader::loadTextureFromFile(tempMaterialPicFileName);
+				tempMaterialsPicFilesData.diffuseMap = static_obj_loader::loadTextureFromFile(tempMaterialPicFileName, 1);
 			}
 			else if (strcmp(lineHeader, "map_Ke") == 0)
 			{
@@ -279,7 +279,7 @@ namespace static_obj_loader
 		return true;
 	}
 
-	unsigned int loadTextureFromFile(const std::string& fileName)
+	unsigned int loadTextureFromFile(const std::string& fileName, int keyForDiffuseMapForGamma)
 	{
 		std::filesystem::path basePath = "../LimboEngine/Resources/objects/textures/";
 		std::filesystem::path pathToOpen = basePath / fileName;
@@ -294,7 +294,11 @@ namespace static_obj_loader
 		if (data)
 		{
 			glBindTexture(GL_TEXTURE_2D, textureID);
-			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+			if (keyForDiffuseMapForGamma == 1)
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+			else
+				glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 

@@ -137,12 +137,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Backend\OpenGL\openglBackend.cpp" />
     <ClCompile Include="src\displayModel.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\model.cpp" />
     <ClCompile Include="vendor\glad\src\glad.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Backend\OpenGL\openglBackend.h" />
     <ClInclude Include="headers\camera.h" />
     <ClInclude Include="headers\displayModel.h" />
     <ClInclude Include="headers\model.h" />
@@ -161,8 +163,8 @@
   <ItemGroup>
     <None Include="shaders\lamp.frag" />
     <None Include="shaders\lamp.vert" />
-    <None Include="shaders\lightCube.frag" />
-    <None Include="shaders\lightCube.vert" />
+    <None Include="shaders\character.frag" />
+    <None Include="shaders\character.vert" />
     <None Include="vendor\assimp\bin\Debug\assimp-vc143-mtd.dll" />
     <None Include="vendor\assimp\lib\Debug\assimp-vc143-mtd.dll" />
     <None Include="vendor\assimp\lib\Debug\assimp-vc143-mtd.exp" />
