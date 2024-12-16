@@ -1,12 +1,6 @@
 #include "render.h"
 
 
-namespace Models_Instances
-{
-	std::filesystem::path pathToTheModel = "Resources/objects/character.pdd";
-	/*std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/FragataVictoria.obj";*/
-	DisplayModel dModel(pathToTheModel);
-}
 
 glm::mat4& OpenGLRender::makeLightProjectionMatrix()
 {
@@ -26,7 +20,6 @@ void OpenGLRender::renderToDepthMap()
 	glBindFramebuffer(GL_FRAMEBUFFER, m_depthMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void OpenGLRender::renderWithAttachedDepthMap()
@@ -60,9 +53,11 @@ void OpenGLRender::generateShadowMapping()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-bool OpenGLRender::drawSceneOfShadows(const Shader& shader,
+bool OpenGLRender::setupSceneOfShadows(Shader& shader,
 	const OpenGl_Backend& oglBackend)
 {
+	shader.use();
+
 	renderToDepthMap();
 
 	m_lightProjectionMatrix = makeLightProjectionMatrix();
@@ -72,16 +67,30 @@ bool OpenGLRender::drawSceneOfShadows(const Shader& shader,
 	shader.setMat4("model", m_model);
 
 
+	return true;
+}
+
+void OpenGLRender::drawSceneOfShadows(Shader& shader, const OpenGl_Backend& oglBackend)
+{
+	shader.use();
+
 	glBindVertexArray(oglBackend.getVertexVAO());
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
-	Models_Instances::dModel.Draw(shader);
+	for (auto i = 0; i < m_displayModel.size(); ++i)
+	{
+		m_displayModel[i].Draw(shader);
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-bool OpenGLRender::drawSceneWithAttachedShadowMap(const Shader& shader,
-	const OpenGl_Backend& oglBackend, DrawingObjectType objectType)
+bool OpenGLRender::drawSceneWithAttachedShadowMap(Shader& shader,
+	const OpenGl_Backend& oglBackend, const DrawingObjectType objectType)
 {
-	renderWithAttachedDepthMap();
+	//renderWithAttachedDepthMap();
+
+	shader.use();
 
 	if (objectType == DrawingObjectType::SHAPE)
 	{
@@ -104,6 +113,9 @@ bool OpenGLRender::drawSceneWithAttachedShadowMap(const Shader& shader,
 		shader.setMat4("view", m_view);
 		shader.setMat4("projection", m_projection);
 
-		Models_Instances::dModel.Draw(shader);
+		for (auto i = 0; i < m_displayModel.size(); ++i)
+		{
+			m_displayModel[i].Draw(shader);
+		}
 	}
 }

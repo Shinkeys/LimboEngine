@@ -9,8 +9,6 @@ uniform mat4 projection;
 
 uniform vec3 lightPos;
 
-uniform mat4 instanceMatrix;
-
 out vec2 TexCoords;
 out vec3 Normal;
 out vec3 FragPos;

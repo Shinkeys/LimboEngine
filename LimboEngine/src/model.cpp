@@ -281,13 +281,13 @@ namespace static_obj_loader
 
 	unsigned int loadTextureFromFile(const std::string& fileName, int keyForDiffuseMapForGamma)
 	{
-		std::filesystem::path basePath = "../Resources/objects/textures/";
+		std::filesystem::path basePath = "Resources/objects/textures/";
 		std::filesystem::path pathToOpen = basePath / fileName;
 		stbi_set_flip_vertically_on_load(true);
 		std::cout << "Texture: " << fileName << '\n';
 		unsigned int textureID;
 		glGenTextures(1, &textureID);
-
+		
 		int width, height, nrChannels;
 		unsigned char* data = stbi_load(pathToOpen.string().c_str(), &width, &height, &nrChannels, 0);
 		int format = nrChannels == 4 ? GL_RGBA : GL_RGB;
@@ -444,7 +444,7 @@ namespace convert_to_binary_pdd
 		
 		indicesToDrawPart.resize(indicesToDrawPartCount);
 
-		pddFile.read(reinterpret_cast<char*>(indicesToDrawPart.data()), 
+		pddFile.read(reinterpret_cast<char*>(convert_to_binary_pdd::indicesToDrawPart.data()),
 			sizeof(unsigned int) * indicesToDrawPartCount);
 
 

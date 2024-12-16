@@ -22,11 +22,17 @@ struct Meshes {
 	std::vector<uint32_t> indices;
 };
 
-
 int main() {
 	OpenGl_Backend oglBackend;
 	oglBackend.initialization();
-	OpenGLRender oglRender;
+
+	std::filesystem::path pathToTheModel = "Resources/objects/character.pdd";
+	/*std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/FragataVictoria.obj";*/
+	DisplayModel dModel(pathToTheModel);
+	std::vector<DisplayModel> modelsToDisplay;
+	modelsToDisplay.push_back(dModel);
+
+	OpenGLRender oglRender(modelsToDisplay);
 
 	// personal settings to replace later
 	glEnable(GL_DEPTH_TEST);
@@ -35,6 +41,7 @@ int main() {
 	Shader character("shaders/character.vert", "shaders/character.frag");
 	Shader shadows("shaders/shadowDepth.vert", "shaders/shadowDepth.frag");
 	Meshes mesh;
+
 	
 	std::vector<float> verticesUntextured {
 					// normals            // texture
@@ -100,7 +107,7 @@ int main() {
 	
 
 	// generation of map of shadows
-	oglRender.generateShadowMapping();
+	//oglRender.generateShadowMapping();
 
 
 	// render loop
@@ -124,12 +131,14 @@ int main() {
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		shadows.use();
-		oglRender.drawSceneOfShadows(shadows, oglBackend);
+		/*oglRender.drawSceneOfShadows(shadows, oglBackend);*/
 
-		character.use();
-		
-		lamp.use();
+		/*oglRender.setupSceneOfShadows(shadows, oglBackend);
+		oglRender.drawSceneOfShadows(shadows, oglBackend);*/
+
+		oglRender.drawSceneWithAttachedShadowMap(character, oglBackend, DrawingObjectType::MODEL);
+		oglRender.drawSceneWithAttachedShadowMap(lamp, oglBackend, DrawingObjectType::SHAPE);
+
 
 		glfwSwapBuffers(Default_Values::window);
 		glfwPollEvents();

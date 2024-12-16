@@ -38,10 +38,8 @@ public:
 		glDeleteVertexArrays(1, &VAO);
 		pddMeshData.clear();
 	}
-	DisplayModel(DisplayModel&& obj) noexcept : pddMeshData{ obj.pddMeshData }
-	{
-		obj.pddMeshData.clear();
-	}
+	
 	void Draw(const Shader& shader);
+	void DrawShadowMapping(const Shader& shader);
 };
 #endif

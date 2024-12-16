@@ -16,6 +16,11 @@ enum class DrawingObjectType
 	MODEL
 };
 
+
+
+
+
+
 class OpenGLRender
 {
 private:
@@ -26,11 +31,14 @@ private:
 	
 	GLuint m_depthMapFBO{};
 	GLuint m_depthMap{};
+
+	std::vector<DisplayModel> m_displayModel;
 public:
-	OpenGLRender() : m_model{ glm::mat4(1.0f) },
-		m_view{ glm::perspective(glm::radians(45.0f),
+	OpenGLRender(std::vector<DisplayModel>& modelsToLoadAndDisplay) : m_model{ glm::mat4(1.0f) },
+		m_projection{ glm::perspective(glm::radians(45.0f),
 			static_cast<float>(Default_Values::SCR_WIDTH) /
-			static_cast<float>(Default_Values::SCR_HEIGHT), 0.1f, 100.0f) }
+			static_cast<float>(Default_Values::SCR_HEIGHT), 0.1f, 100.0f) },
+		m_displayModel{modelsToLoadAndDisplay}
 	{
 
 	}
@@ -41,9 +49,10 @@ public:
 	void renderWithAttachedDepthMap();
 	void generateShadowMapping();
 	// simple 3d obj like cube
-	bool drawSceneOfShadows(const Shader& shader, const OpenGl_Backend& oglBackend);
-	bool drawSceneWithAttachedShadowMap(const Shader& shader, 
-		const OpenGl_Backend& oglBackend, DrawingObjectType objectType);
+	bool setupSceneOfShadows(Shader& shader, const OpenGl_Backend& oglBackend);
+	void drawSceneOfShadows(Shader& shader, const OpenGl_Backend& oglBackend);
+	bool drawSceneWithAttachedShadowMap(Shader& shader, 
+		const OpenGl_Backend& oglBackend, const DrawingObjectType objectType);
 
 
 
