@@ -12,13 +12,27 @@ enum class CameraMovement
 	forward,
 	backward,
 	left,
-	right,
+	right,			
 };
 
-const float g_yaw{ -90.0f };
-const float g_pitch{ 0.0f };
-const float g_sensitivity{ 0.1f };
-const float g_speed{ 2.5f };
+
+
+struct PerspectiveValues
+{
+	float fov{};
+	int scr_width{};
+	int scr_height{};
+	float zNear{};
+	float zFar{};
+};
+
+constexpr float g_yaw{ -90.0f };
+constexpr float g_pitch{ 0.0f };
+constexpr float g_sensitivity{ 0.1f };
+constexpr float g_speed{ 2.5f };
+
+constexpr float g_maxDistance{ 100.0f };
+constexpr float g_minDistance{ 5.0f };
 
 class Camera
 {
@@ -36,7 +50,8 @@ public:
 	float MovementSpeed;
 	float Sensitivity;
 
-	inline static bool cursorState;
+	float fov{ 90.0f };
+
 
 	Camera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
 		float yaw = g_yaw, float pitch = g_pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
@@ -83,17 +98,7 @@ public:
 		{
 			Position += Right * velocity;
 		}
-		/*if (!cursorState)
-		{
-			Position.y = 0.0f;
-		}*/
-		else if (cursorState)
-		{
-			Position.x = -2.0f;
-			Position.y = 3.0f;
-			Position.z = 7.0f;
 
-		}
 	}
 
 	void processMouse(float xOffset, float yOffset, GLboolean constraintPitch = true)
@@ -113,8 +118,6 @@ public:
 		updateCamVectors();
 	}
 
-	static void setCursorState() { cursorState = !cursorState; }
-	static const auto  getCursorState() { return cursorState; }
 
 private:
 	void updateCamVectors()

@@ -5,8 +5,8 @@
 glm::mat4& OpenGLRender::makeLightProjectionMatrix()
 {
 	float nearPlane = 1.0f;
-	float farPlane = 10.0f;
-	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
+	float farPlane = 2.0f;
+	glm::mat4 lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, nearPlane, farPlane);
 	glm::mat4 lightView = glm::lookAt(Default_Values::lightPos,
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
@@ -58,8 +58,6 @@ bool OpenGLRender::setupSceneOfShadows(Shader& shader,
 	const OpenGl_Backend& oglBackend)
 {
 	shader.use();
-
-	renderToDepthMap();
 
 	m_lightProjectionMatrix = makeLightProjectionMatrix();
 	
@@ -122,4 +120,13 @@ bool OpenGLRender::drawSceneWithAttachedShadowMap(Shader& shader,
 		}
 	}
 
+}
+
+void fillPerspectiveMatrix(PerspectiveValues& pValues)
+{
+	pValues.fov = Default_Values::camera.fov;
+	pValues.scr_height = Default_Values::SCR_HEIGHT;
+	pValues.scr_width = Default_Values::SCR_WIDTH;
+	pValues.zNear = Default_Values::zNear;
+	pValues.zFar = Default_Values::zFar;
 }

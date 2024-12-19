@@ -33,6 +33,9 @@ namespace Default_Values
 	// camera
 	extern Camera camera;
 
+	extern float zFar;
+	extern float zNear;
+
 
 }
 class OpenGl_Backend
@@ -68,8 +71,23 @@ public:
 };
 static void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity,
 	GLsizei length, const char* message, const void* userParam);
-void processInputMode_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xPos, double yPos);
+void scrollCallback(GLFWwindow* window, double x, double y);
+
+
+// clamp
+template <typename T>
+const T& clamp(const T& number, const T& min, const T& max)
+{
+	return std::min(max, std::max(number, min));
+}
+
+
+
+
+
+
+
 #endif // !OPENGL_H

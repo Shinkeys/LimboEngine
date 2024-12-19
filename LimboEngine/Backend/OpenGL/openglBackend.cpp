@@ -20,9 +20,12 @@ namespace Default_Values
 
 	glm::vec3 lightPos = glm::vec3(0.0f, 1.0f, 3.0f);
 
-	// camera
-	Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
+	// camera
+	Camera camera(glm::vec3(0.0f, 5.0f, 5.0f));
+
+	float zFar = 100.0f;
+	float zNear = 0.1f;
 
 }
 	int OpenGl_Backend::initialization()
@@ -49,9 +52,10 @@ namespace Default_Values
 		}
 		glfwMakeContextCurrent(Default_Values::window);
 		glfwSetFramebufferSizeCallback(Default_Values::window, framebuffer_size_callback);
-		glfwSetKeyCallback(Default_Values::window, processInputMode_callback);
 		glfwSetCursorPosCallback(Default_Values::window, mouse_callback);
+		glfwSetScrollCallback(Default_Values::window, scrollCallback);
 
+		
 
 		// glad: load all OpenGL function pointers
 		// ---------------------------------------
@@ -160,6 +164,12 @@ namespace Default_Values
 
 
 	}
+	void scrollCallback(GLFWwindow* window, double x, double y)
+	{
+		float zoomSpeed = 1.0f;
+		Default_Values::camera.Position.z -= static_cast<float>(y) * zoomSpeed;
+		Default_Values::camera.Position.z = clamp(Default_Values::camera.Position.z, g_minDistance, g_maxDistance);
+	}
 
 	void OpenGl_Backend::lightMove(GLFWwindow* window)
 	{
@@ -178,23 +188,6 @@ namespace Default_Values
 		}
 	}
 
-	void processInputMode_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-	{
-		if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS)
-		{
-			Camera::setCursorState();
-		}
-
-
-		if (Camera::getCursorState())
-		{
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
-		}
-		else
-		{
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		}
-	}
 	// glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

@@ -107,7 +107,7 @@ int main() {
 	
 
 	// generation of map of shadows
-	//oglRender.generateShadowMapping();
+	oglRender.generateShadowMapping();
 
 
 	// render loop
@@ -136,6 +136,12 @@ int main() {
 		/*oglRender.setupSceneOfShadows(shadows, oglBackend);
 		oglRender.drawSceneOfShadows(shadows, oglBackend);*/
 
+		// depth map drawing
+		oglRender.renderToDepthMap();
+		oglRender.setupSceneOfShadows(character, oglBackend);
+		oglRender.drawSceneOfShadows(character, oglBackend);
+
+		// ready map drawing
 		oglRender.clearBufferWithAttachedDepthMap();
 		oglRender.drawSceneWithAttachedShadowMap(character, oglBackend, DrawingObjectType::MODEL);
 		oglRender.drawSceneWithAttachedShadowMap(lamp, oglBackend, DrawingObjectType::SHAPE);

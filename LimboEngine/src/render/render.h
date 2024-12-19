@@ -61,4 +61,8 @@ public:
 	const auto getDepthMap() const { return m_depthMap; }
 
 
+	// others
+
+
 };
+void fillPerspectiveMatrix(PerspectiveValues& pValues);
