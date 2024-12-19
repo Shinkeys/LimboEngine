@@ -24,7 +24,6 @@ enum class DrawingObjectType
 class OpenGLRender
 {
 private:
-	glm::mat4 m_model{};
 	glm::mat4 m_view{};
 	glm::mat4 m_projection{};
 	glm::mat4 m_lightProjectionMatrix{};
@@ -32,9 +31,10 @@ private:
 	GLuint m_depthMapFBO{};
 	GLuint m_depthMap{};
 
+
 	std::vector<DisplayModel> m_displayModel;
 public:
-	OpenGLRender(std::vector<DisplayModel>& modelsToLoadAndDisplay) : m_model{ glm::mat4(1.0f) },
+	OpenGLRender(std::vector<DisplayModel>& modelsToLoadAndDisplay) :
 		m_projection{ glm::perspective(glm::radians(45.0f),
 			static_cast<float>(Default_Values::SCR_WIDTH) /
 			static_cast<float>(Default_Values::SCR_HEIGHT), 0.1f, 100.0f) },
@@ -46,7 +46,7 @@ public:
 	
 	glm::mat4& makeLightProjectionMatrix();
 	void renderToDepthMap();
-	void renderWithAttachedDepthMap();
+	void clearBufferWithAttachedDepthMap();
 	void generateShadowMapping();
 	// simple 3d obj like cube
 	bool setupSceneOfShadows(Shader& shader, const OpenGl_Backend& oglBackend);

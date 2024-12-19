@@ -22,11 +22,12 @@ void OpenGLRender::renderToDepthMap()
 
 }
 
-void OpenGLRender::renderWithAttachedDepthMap()
+void OpenGLRender::clearBufferWithAttachedDepthMap()
 {
 	glViewport(0, 0, Default_Values::SCR_WIDTH, Default_Values::SCR_HEIGHT);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glBindTexture(GL_TEXTURE_2D, m_depthMap);
+	/*glBindTexture(GL_TEXTURE_2D, m_depthMap);*/
 }
 
 void OpenGLRender::generateShadowMapping()
@@ -61,10 +62,12 @@ bool OpenGLRender::setupSceneOfShadows(Shader& shader,
 	renderToDepthMap();
 
 	m_lightProjectionMatrix = makeLightProjectionMatrix();
+	
+	glm::mat4 model(1.0f);
 
 	shader.setMat4("lightSpaceMatrix", m_lightProjectionMatrix);
 
-	shader.setMat4("model", m_model);
+	shader.setMat4("model", model);
 
 
 	return true;
@@ -88,16 +91,15 @@ void OpenGLRender::drawSceneOfShadows(Shader& shader, const OpenGl_Backend& oglB
 bool OpenGLRender::drawSceneWithAttachedShadowMap(Shader& shader,
 	const OpenGl_Backend& oglBackend, const DrawingObjectType objectType)
 {
-	//renderWithAttachedDepthMap();
-
 	shader.use();
 
-	if (objectType == DrawingObjectType::SHAPE)
+		if (objectType == DrawingObjectType::SHAPE)
 	{
+		glm::mat4 model(1.0f);
 		m_view = Default_Values::camera.getViewMatrix();
-		m_model = glm::translate(m_model, Default_Values::lightPos);
-		m_model = glm::scale(m_model, glm::vec3(0.3f));
-		shader.setMat4("model", m_model);
+		model = glm::translate(model, Default_Values::lightPos);
+		model = glm::scale(model, glm::vec3(0.3f));
+		shader.setMat4("model", model);
 		shader.setMat4("view", m_view);
 		shader.setMat4("projection", m_projection);
 
@@ -107,9 +109,10 @@ bool OpenGLRender::drawSceneWithAttachedShadowMap(Shader& shader,
 	}
 	else if (objectType == DrawingObjectType::MODEL)
 	{
+		glm::mat4 model(1.0f);
 		m_view = Default_Values::camera.getViewMatrix();
 		shader.setVec3("lightPos", Default_Values::lightPos);
-		shader.setMat4("model", m_model);
+		shader.setMat4("model", model);
 		shader.setMat4("view", m_view);
 		shader.setMat4("projection", m_projection);
 
@@ -118,4 +121,5 @@ bool OpenGLRender::drawSceneWithAttachedShadowMap(Shader& shader,
 			m_displayModel[i].Draw(shader);
 		}
 	}
+
 }

@@ -128,14 +128,15 @@ int main() {
 		Default_Values::lastTime = currentTime;
 
 
-		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		/*glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
 
 		/*oglRender.drawSceneOfShadows(shadows, oglBackend);*/
 
 		/*oglRender.setupSceneOfShadows(shadows, oglBackend);
 		oglRender.drawSceneOfShadows(shadows, oglBackend);*/
 
+		oglRender.clearBufferWithAttachedDepthMap();
 		oglRender.drawSceneWithAttachedShadowMap(character, oglBackend, DrawingObjectType::MODEL);
 		oglRender.drawSceneWithAttachedShadowMap(lamp, oglBackend, DrawingObjectType::SHAPE);
 
