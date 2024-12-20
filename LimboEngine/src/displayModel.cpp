@@ -34,7 +34,6 @@ void DisplayModel::Draw(const Shader& shader)
 {
 	unsigned int offset = 0;
 	unsigned int j = 0;
-	std::string name;
 	std::string currentNameOfMtlForCurrentIndices;
 	for (const auto& x : convert_to_binary_pdd::indicesToDrawPart)
 	{
@@ -43,26 +42,23 @@ void DisplayModel::Draw(const Shader& shader)
 			currentNameOfMtlForCurrentIndices = convert_to_binary_pdd::useMtlNames[j];
 			++j;
 		}
-		if (convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].diffuseMap) {
-			name = "material.texture_diffuse";
+		if (convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].diffuseMap)
+		{
 			glUniform1i(shader.materialUniforms.diffuseLocation, 0);
 			glBindTextureUnit(0, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].diffuseMap);
 		}
 		if (convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].normalMap)
 		{
-			name = "material.texture_normal";
 			glUniform1i(shader.materialUniforms.normalLocation, 1);
 			glBindTextureUnit(1, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].normalMap);
 		}
 		if (convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].emissionMap)
 		{
-			name = "material.texture_emission";
 			glUniform1i(shader.materialUniforms.emissionLocation, 2);
 			glBindTextureUnit(2, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].emissionMap);
 		}
 		if (convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].specularMap)
 		{
-			name = "material.texture_specular";
 			glUniform1i(shader.materialUniforms.specularLocation, 3);
 			glBindTextureUnit(3, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].specularMap);
 		}

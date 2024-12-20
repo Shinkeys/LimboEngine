@@ -44,16 +44,15 @@ public:
 	}
 
 	
-	glm::mat4& makeLightProjectionMatrix();
+	glm::mat4 makeLightProjectionMatrix();
 	void renderToDepthMap();
 	void clearBufferWithAttachedDepthMap();
 	void generateShadowMapping();
 	// simple 3d obj like cube
-	bool setupSceneOfShadows(Shader& shader, const OpenGl_Backend& oglBackend);
-	void drawSceneOfShadows(Shader& shader, const OpenGl_Backend& oglBackend);
+	bool fillLightProjectionMatrix(Shader& shader, const OpenGl_Backend& oglBackend);
+	void drawSceneOfShadows(Shader& shader, const OpenGl_Backend& oglBackend, const DrawingObjectType objectType);
 	bool drawSceneWithAttachedShadowMap(Shader& shader, 
 		const OpenGl_Backend& oglBackend, const DrawingObjectType objectType);
-
 
 
 

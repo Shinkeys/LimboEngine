@@ -24,12 +24,21 @@ public:
 	unsigned int ID; // program ID
     // constructor reads and builds the shader
 	UniformData materialUniforms;
+
+	unsigned int depthMap{};
+
 	void initializeUniformData()
 	{
 		materialUniforms.diffuseLocation = glGetUniformLocation(ID, "material.texture_diffuse");
 		materialUniforms.normalLocation = glGetUniformLocation(ID, "material.texture_normal");
 		materialUniforms.emissionLocation = glGetUniformLocation(ID, "material.texture_emission");
 		materialUniforms.specularLocation = glGetUniformLocation(ID, "material.texture_specular");
+
+	}
+
+	void initializeDepthMap()
+	{
+		depthMap = glGetUniformLocation(ID, "depthMap");
 	}
 Shader(const char* vertexPath, const char* fragmentPath) 
 {

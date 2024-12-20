@@ -104,6 +104,7 @@ int main() {
 
 
 	character.initializeUniformData();
+	shadows.initializeDepthMap();
 	
 
 	// generation of map of shadows
@@ -127,21 +128,12 @@ int main() {
 
 		Default_Values::lastTime = currentTime;
 
-
-		/*glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
-
-		/*oglRender.drawSceneOfShadows(shadows, oglBackend);*/
-
-		/*oglRender.setupSceneOfShadows(shadows, oglBackend);
-		oglRender.drawSceneOfShadows(shadows, oglBackend);*/
-
 		// depth map drawing
 		oglRender.renderToDepthMap();
-		oglRender.setupSceneOfShadows(character, oglBackend);
-		oglRender.drawSceneOfShadows(character, oglBackend);
-
-		// ready map drawing
+		oglRender.fillLightProjectionMatrix(shadows, oglBackend);
+		oglRender.drawSceneOfShadows(character, oglBackend, DrawingObjectType::MODEL);
+		oglRender.drawSceneOfShadows(lamp, oglBackend, DrawingObjectType::SHAPE);
+		//// ready map drawing
 		oglRender.clearBufferWithAttachedDepthMap();
 		oglRender.drawSceneWithAttachedShadowMap(character, oglBackend, DrawingObjectType::MODEL);
 		oglRender.drawSceneWithAttachedShadowMap(lamp, oglBackend, DrawingObjectType::SHAPE);
