@@ -8,6 +8,7 @@
 #include "../headers/shader.h"
 #include "../headers/model.h"
 
+
 class DisplayModel
 {
 private:
@@ -39,7 +40,7 @@ public:
 		pddMeshData.clear();
 	}
 	
-	void Draw(const Shader& shader);
+	void Draw(const Shader& shader, std::optional<GLuint> depthMap = std::nullopt);
 	void DrawShadowMapping(const Shader& shader);
 };
 #endif

@@ -15,6 +15,7 @@ struct UniformData
 	int normalLocation{};
 	int emissionLocation{};
 	int specularLocation{};
+	int shadowMap{};
 };
 
 
@@ -25,7 +26,6 @@ public:
     // constructor reads and builds the shader
 	UniformData materialUniforms;
 
-	unsigned int depthMap{};
 
 	void initializeUniformData()
 	{
@@ -33,13 +33,9 @@ public:
 		materialUniforms.normalLocation = glGetUniformLocation(ID, "material.texture_normal");
 		materialUniforms.emissionLocation = glGetUniformLocation(ID, "material.texture_emission");
 		materialUniforms.specularLocation = glGetUniformLocation(ID, "material.texture_specular");
-
+		materialUniforms.shadowMap = glGetUniformLocation(ID, "shadowMap");
 	}
 
-	void initializeDepthMap()
-	{
-		depthMap = glGetUniformLocation(ID, "depthMap");
-	}
 Shader(const char* vertexPath, const char* fragmentPath) 
 {
 	std::string vertexCode;

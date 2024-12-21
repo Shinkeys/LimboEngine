@@ -19,9 +19,9 @@ out vec4 FragPosLightSpace;
 
 void main()
 {
-	FragPos = vec3(model * view * vec4(aPos, 1.0));
-	Normal = mat3(transpose(inverse(view * model))) * aNormal;
-	LightPos = vec3(view * vec4(lightPos, 1.0));
+	FragPos = vec3(model * vec4(aPos, 1.0));
+	Normal = mat3(transpose(inverse(model))) * aNormal;
+	LightPos = vec3(model * vec4(lightPos, 1.0));
 	TexCoords = aTexCoords;
 	FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0); // for shadow mapping
 	gl_Position = projection * view * model * vec4(aPos, 1.0);

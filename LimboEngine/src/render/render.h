@@ -13,7 +13,8 @@
 enum class DrawingObjectType
 {
 	SHAPE,
-	MODEL
+	MODEL,
+	FLOOR
 };
 
 
@@ -51,9 +52,9 @@ public:
 	// simple 3d obj like cube
 	bool fillLightProjectionMatrix(Shader& shader, const OpenGl_Backend& oglBackend);
 	void drawSceneOfShadows(Shader& shader, const OpenGl_Backend& oglBackend, const DrawingObjectType objectType);
-	bool drawSceneWithAttachedShadowMap(Shader& shader, 
+	void drawSceneWithAttachedShadowMap(Shader& shader, 
 		const OpenGl_Backend& oglBackend, const DrawingObjectType objectType);
-
+	void setShaderVariables(const Shader& shader, const DrawingObjectType object);
 
 
 	const auto getDepthMapFBO() const { return m_depthMapFBO; }

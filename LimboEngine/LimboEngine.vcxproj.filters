@@ -83,5 +83,7 @@
     <None Include="vendor\assimp\lib\Debug\assimp-vc143-mtd.dll" />
     <None Include="shaders\shadowDepth.vert" />
     <None Include="shaders\shadowDepth.frag" />
+    <None Include="shaders\floor.frag" />
+    <None Include="shaders\floor.vert" />
   </ItemGroup>
 </Project>

@@ -81,6 +81,10 @@ void OpenGLRender::drawSceneOfShadows(Shader& shader, const OpenGl_Backend& oglB
 		glBindVertexArray(oglBackend.getVertexVAO());
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
+	else if (objectType == DrawingObjectType::FLOOR)
+	{
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
 
 	else if (objectType == DrawingObjectType::MODEL)
 	{
@@ -93,12 +97,41 @@ void OpenGLRender::drawSceneOfShadows(Shader& shader, const OpenGl_Backend& oglB
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-bool OpenGLRender::drawSceneWithAttachedShadowMap(Shader& shader,
+void OpenGLRender::drawSceneWithAttachedShadowMap(Shader& shader,
 	const OpenGl_Backend& oglBackend, const DrawingObjectType objectType)
 {
 	shader.use();
 
-		if (objectType == DrawingObjectType::SHAPE)
+	if (objectType == DrawingObjectType::SHAPE)
+	{
+		setShaderVariables(shader, objectType);
+
+		glBindVertexArray(oglBackend.getVertexVAO());
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	}
+	else if (objectType == DrawingObjectType::FLOOR)
+	{
+		setShaderVariables(shader, objectType);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
+	else if (objectType == DrawingObjectType::MODEL)
+	{
+		
+		setShaderVariables(shader, objectType);
+
+		for (auto i = 0; i < m_displayModel.size(); ++i)
+		{
+			m_displayModel[i].Draw(shader, m_depthMap);
+		}
+	}
+
+}
+
+
+void OpenGLRender::setShaderVariables(const Shader& shader, const DrawingObjectType object)
+{
+	if (object == DrawingObjectType::SHAPE)
 	{
 		glm::mat4 model(1.0f);
 		m_view = Default_Values::camera.getViewMatrix();
@@ -108,11 +141,8 @@ bool OpenGLRender::drawSceneWithAttachedShadowMap(Shader& shader,
 		shader.setMat4("view", m_view);
 		shader.setMat4("projection", m_projection);
 
-
-		glBindVertexArray(oglBackend.getVertexVAO());
-		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
-	else if (objectType == DrawingObjectType::MODEL)
+	else if (object == DrawingObjectType::MODEL)
 	{
 		glm::mat4 model(1.0f);
 		m_view = Default_Values::camera.getViewMatrix();
@@ -122,14 +152,17 @@ bool OpenGLRender::drawSceneWithAttachedShadowMap(Shader& shader,
 		shader.setMat4("projection", m_projection);
 		// for shadows
 		shader.setMat4("lightSpaceMatrix", m_lightProjectionMatrix);
-
-
-		for (auto i = 0; i < m_displayModel.size(); ++i)
-		{
-			m_displayModel[i].Draw(shader);
-		}
 	}
+	else if (object == DrawingObjectType::FLOOR)
+	{
+		m_view = Default_Values::camera.getViewMatrix();
+		glm::mat4 res = m_projection * m_view;
+		glm::vec3 cameraWorldPos = Default_Values::camera.Position;
 
+
+		shader.setMat4("gridViewProjection", res);
+		shader.setVec3("cameraWorldPosition", cameraWorldPos);
+	}
 }
 
 void fillPerspectiveMatrix(PerspectiveValues& pValues)

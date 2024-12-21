@@ -36,10 +36,14 @@ int main() {
 
 	// personal settings to replace later
 	glEnable(GL_DEPTH_TEST);
+	// for grid
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glFrontFace(GL_CCW);
 	Shader lamp("shaders/lamp.vert", "shaders/lamp.frag");
 	Shader character("shaders/character.vert", "shaders/character.frag");
 	Shader shadows("shaders/shadowDepth.vert", "shaders/shadowDepth.frag");
+	Shader floor("shaders/floor.vert", "shaders/floor.frag");
 	Meshes mesh;
 
 	
@@ -104,7 +108,6 @@ int main() {
 
 
 	character.initializeUniformData();
-	shadows.initializeDepthMap();
 	
 
 	// generation of map of shadows
@@ -133,10 +136,13 @@ int main() {
 		oglRender.fillLightProjectionMatrix(shadows, oglBackend);
 		oglRender.drawSceneOfShadows(character, oglBackend, DrawingObjectType::MODEL);
 		oglRender.drawSceneOfShadows(lamp, oglBackend, DrawingObjectType::SHAPE);
-		//// ready map drawing
+		oglRender.drawSceneOfShadows(floor, oglBackend, DrawingObjectType::FLOOR);
+		////// ready map drawing
 		oglRender.clearBufferWithAttachedDepthMap();
 		oglRender.drawSceneWithAttachedShadowMap(character, oglBackend, DrawingObjectType::MODEL);
 		oglRender.drawSceneWithAttachedShadowMap(lamp, oglBackend, DrawingObjectType::SHAPE);
+		oglRender.drawSceneWithAttachedShadowMap(floor, oglBackend, DrawingObjectType::FLOOR);
+
 
 
 		glfwSwapBuffers(Default_Values::window);

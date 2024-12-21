@@ -1,5 +1,7 @@
 #include "../headers/displayModel.h"
 
+#include "../src/render/render.h"
+
 void DisplayModel::setupOpenGLMeshData()
 {
 	glGenBuffers(1, &VBO);
@@ -30,7 +32,7 @@ void DisplayModel::setupOpenGLMeshData()
 	glEnableVertexAttribArray(0);
 }
 
-void DisplayModel::Draw(const Shader& shader)
+void DisplayModel::Draw(const Shader& shader, std::optional<GLuint> depthMap)
 {
 	unsigned int offset = 0;
 	unsigned int j = 0;
@@ -62,6 +64,12 @@ void DisplayModel::Draw(const Shader& shader)
 			glUniform1i(shader.materialUniforms.specularLocation, 3);
 			glBindTextureUnit(3, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].specularMap);
 		}
+		if(depthMap != std::nullopt)
+		{
+			glUniform1i(shader.materialUniforms.shadowMap, 4);
+			glBindTextureUnit(4, *depthMap);
+		}
+
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, x, GL_UNSIGNED_INT, (void*)(offset * sizeof(unsigned int)));
 		//glDrawArrays(GL_TRIANGLES, 0, model.m_outVertices.size());
