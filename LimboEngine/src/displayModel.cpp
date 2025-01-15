@@ -32,7 +32,7 @@ void DisplayModel::setupOpenGLMeshData()
 	glEnableVertexAttribArray(0);
 }
 
-void DisplayModel::Draw(const Shader& shader, std::optional<GLuint> depthMap)
+void DisplayModel::Draw(const Shader& shader)
 {
 	unsigned int offset = 0;
 	unsigned int j = 0;
@@ -64,11 +64,6 @@ void DisplayModel::Draw(const Shader& shader, std::optional<GLuint> depthMap)
 			glUniform1i(shader.materialUniforms.specularLocation, 3);
 			glBindTextureUnit(3, convert_to_binary_pdd::materialsPicturesFilesFromMtlData[currentNameOfMtlForCurrentIndices].specularMap);
 		}
-		if(depthMap != std::nullopt)
-		{
-			glUniform1i(shader.materialUniforms.shadowMap, 4);
-			glBindTextureUnit(4, *depthMap);
-		}
 
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, x, GL_UNSIGNED_INT, (void*)(offset * sizeof(unsigned int)));
@@ -77,4 +72,12 @@ void DisplayModel::Draw(const Shader& shader, std::optional<GLuint> depthMap)
 		offset = (unsigned int)x;
 	}
 	
+}
+
+void DisplayModel::DrawShadowMapping()
+{
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, convert_to_binary_pdd::outIndicesCount.size(), GL_UNSIGNED_INT, nullptr);
+	//glDrawArrays(GL_TRIANGLES, 0, model.m_outVertices.size());
+	glBindVertexArray(0);
 }

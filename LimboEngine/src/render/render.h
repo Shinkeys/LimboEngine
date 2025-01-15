@@ -10,7 +10,7 @@
 #include <iostream>
 #include <filesystem>
 
-enum class DrawingObjectType
+enum class ObjectType
 {
 	SHAPE,
 	MODEL,
@@ -50,12 +50,12 @@ public:
 	void clearBufferWithAttachedDepthMap();
 	void generateShadowMapping();
 	// simple 3d obj like cube
-	bool fillLightProjectionMatrix(Shader& shader, const OpenGl_Backend& oglBackend);
-	void drawSceneOfShadows(Shader& shader, const OpenGl_Backend& oglBackend, const DrawingObjectType objectType);
+	bool fillLightProjectionMatrix(const Shader& shader);
+	void drawSceneOfShadows(Shader& shader, const OpenGl_Backend& oglBackend, const ObjectType objectType);
 	void drawSceneWithAttachedShadowMap(Shader& shader, 
-		const OpenGl_Backend& oglBackend, const DrawingObjectType objectType);
-	void setShaderVariables(const Shader& shader, const DrawingObjectType object);
-
+		const OpenGl_Backend& oglBackend, const ObjectType objectType);
+	void setShaderVariables(const Shader& shader, const ObjectType object);
+	void bindDefaultFramebuffer();
 
 	const auto getDepthMapFBO() const { return m_depthMapFBO; }
 	const auto getDepthMap() const { return m_depthMap; }

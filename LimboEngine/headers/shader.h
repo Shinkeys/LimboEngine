@@ -15,9 +15,14 @@ struct UniformData
 	int normalLocation{};
 	int emissionLocation{};
 	int specularLocation{};
-	int shadowMap{};
 };
 
+
+struct ShadowMapping
+{
+	int shadowMap{};
+	int lightSpaceMatrix{};
+};
 
 
 class Shader {
@@ -25,7 +30,7 @@ public:
 	unsigned int ID; // program ID
     // constructor reads and builds the shader
 	UniformData materialUniforms;
-
+	ShadowMapping shadowUniforms;
 
 	void initializeUniformData()
 	{
@@ -33,7 +38,12 @@ public:
 		materialUniforms.normalLocation = glGetUniformLocation(ID, "material.texture_normal");
 		materialUniforms.emissionLocation = glGetUniformLocation(ID, "material.texture_emission");
 		materialUniforms.specularLocation = glGetUniformLocation(ID, "material.texture_specular");
-		materialUniforms.shadowMap = glGetUniformLocation(ID, "shadowMap");
+	}
+
+	void initializeShadowMapShader()
+	{
+		shadowUniforms.shadowMap = glGetUniformLocation(ID, "shadowMap");
+		shadowUniforms.lightSpaceMatrix = glGetUniformLocation(ID, "lightSpaceMatrix");
 	}
 
 Shader(const char* vertexPath, const char* fragmentPath) 

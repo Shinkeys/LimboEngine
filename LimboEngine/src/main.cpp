@@ -19,7 +19,8 @@
 
 
 struct Meshes {
-	std::vector<uint32_t> indices;
+	std::vector<uint32_t> indicesCube;
+	std::vector<uint32_t> indicesSquare;
 };
 
 int main() {
@@ -27,7 +28,6 @@ int main() {
 	oglBackend.initialization();
 
 	std::filesystem::path pathToTheModel = "Resources/objects/character.pdd";
-	/*std::filesystem::path pathToTheModel = "../LimboEngine/Resources/objects/FragataVictoria.obj";*/
 	DisplayModel dModel(pathToTheModel);
 	std::vector<DisplayModel> modelsToDisplay;
 	modelsToDisplay.push_back(dModel);
@@ -35,19 +35,19 @@ int main() {
 	OpenGLRender oglRender(modelsToDisplay);
 
 	// personal settings to replace later
-	glEnable(GL_DEPTH_TEST);
+	
 	// for grid
+	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glFrontFace(GL_CCW);
 	Shader lamp("shaders/lamp.vert", "shaders/lamp.frag");
 	Shader character("shaders/character.vert", "shaders/character.frag");
-	Shader shadows("shaders/shadowDepth.vert", "shaders/shadowDepth.frag");
-	Shader floor("shaders/floor.vert", "shaders/floor.frag");
+	Shader grid("shaders/grid.vert", "shaders/grid.frag");
 	Meshes mesh;
 
 	
-	std::vector<float> verticesUntextured {
+	std::vector<float> verticesUntexturedCube {
 					// normals            // texture
 		-0.5f, -0.5f, -0.5f,
 		 0.5f, -0.5f, -0.5f,
@@ -92,7 +92,7 @@ int main() {
 		-0.5f,  0.5f, -0.5f
 	};					   
 
-	mesh.indices = {
+	mesh.indicesCube = {
 	0, 1, 2, 3, 4, 5,
 	6, 7, 8, 9, 10, 11,
 	12, 13, 14, 15, 16, 17,
@@ -103,11 +103,12 @@ int main() {
 
 
 	// creating and filling buffers 
-	oglBackend.setupUnskinnedByEBO(verticesUntextured, mesh.indices);
+	oglBackend.setupUnskinnedByEBO(verticesUntexturedCube, mesh.indicesCube);
 
 
 
 	character.initializeUniformData();
+	grid.initializeShadowMapShader();
 	
 
 	// generation of map of shadows
@@ -133,15 +134,15 @@ int main() {
 
 		// depth map drawing
 		oglRender.renderToDepthMap();
-		oglRender.fillLightProjectionMatrix(shadows, oglBackend);
-		oglRender.drawSceneOfShadows(character, oglBackend, DrawingObjectType::MODEL);
-		oglRender.drawSceneOfShadows(lamp, oglBackend, DrawingObjectType::SHAPE);
-		oglRender.drawSceneOfShadows(floor, oglBackend, DrawingObjectType::FLOOR);
+		oglRender.drawSceneOfShadows(lamp, oglBackend, ObjectType::SHAPE);
+		oglRender.drawSceneOfShadows(grid, oglBackend, ObjectType::FLOOR);
+		oglRender.drawSceneOfShadows(character, oglBackend, ObjectType::MODEL);
+		oglRender.bindDefaultFramebuffer();
 		////// ready map drawing
 		oglRender.clearBufferWithAttachedDepthMap();
-		oglRender.drawSceneWithAttachedShadowMap(character, oglBackend, DrawingObjectType::MODEL);
-		oglRender.drawSceneWithAttachedShadowMap(lamp, oglBackend, DrawingObjectType::SHAPE);
-		oglRender.drawSceneWithAttachedShadowMap(floor, oglBackend, DrawingObjectType::FLOOR);
+		oglRender.drawSceneWithAttachedShadowMap(lamp, oglBackend, ObjectType::SHAPE);
+		oglRender.drawSceneWithAttachedShadowMap(grid, oglBackend, ObjectType::FLOOR);
+		oglRender.drawSceneWithAttachedShadowMap(character, oglBackend, ObjectType::MODEL);
 
 
 

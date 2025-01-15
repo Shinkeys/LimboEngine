@@ -55,10 +55,8 @@ void OpenGLRender::generateShadowMapping()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-bool OpenGLRender::fillLightProjectionMatrix(Shader& shader,
-	const OpenGl_Backend& oglBackend)
+bool OpenGLRender::fillLightProjectionMatrix(const Shader& shader)
 {
-	shader.use();
 
 	m_lightProjectionMatrix = makeLightProjectionMatrix();
 	
@@ -68,41 +66,39 @@ bool OpenGLRender::fillLightProjectionMatrix(Shader& shader,
 
 	shader.setMat4("model", model);
 
-
 	return true;
 }
 
-void OpenGLRender::drawSceneOfShadows(Shader& shader, const OpenGl_Backend& oglBackend, const DrawingObjectType objectType)
+void OpenGLRender::drawSceneOfShadows(Shader& shader, const OpenGl_Backend& oglBackend, const ObjectType objectType)
 {
 	shader.use();
 
-	if (objectType == DrawingObjectType::SHAPE)
+	if (objectType == ObjectType::SHAPE)
 	{
 		glBindVertexArray(oglBackend.getVertexVAO());
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
-	else if (objectType == DrawingObjectType::FLOOR)
+	else if (objectType == ObjectType::FLOOR)
 	{
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 
-	else if (objectType == DrawingObjectType::MODEL)
+	else if (objectType == ObjectType::MODEL)
 	{
 		for (auto i = 0; i < m_displayModel.size(); ++i)
 		{
-			m_displayModel[i].Draw(shader);
+			m_displayModel[i].DrawShadowMapping();
 		}
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void OpenGLRender::drawSceneWithAttachedShadowMap(Shader& shader,
-	const OpenGl_Backend& oglBackend, const DrawingObjectType objectType)
+	const OpenGl_Backend& oglBackend, const ObjectType objectType)
 {
 	shader.use();
 
-	if (objectType == DrawingObjectType::SHAPE)
+	if (objectType == ObjectType::SHAPE)
 	{
 		setShaderVariables(shader, objectType);
 
@@ -110,28 +106,29 @@ void OpenGLRender::drawSceneWithAttachedShadowMap(Shader& shader,
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	}
-	else if (objectType == DrawingObjectType::FLOOR)
+	else if (objectType == ObjectType::FLOOR)
 	{
 		setShaderVariables(shader, objectType);
+		// idc what I'm drawing because it calculates separately in the shader anyway
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
-	else if (objectType == DrawingObjectType::MODEL)
+	else if (objectType == ObjectType::MODEL)
 	{
 		
 		setShaderVariables(shader, objectType);
 
 		for (auto i = 0; i < m_displayModel.size(); ++i)
 		{
-			m_displayModel[i].Draw(shader, m_depthMap);
+			m_displayModel[i].Draw(shader);
 		}
 	}
 
 }
 
 
-void OpenGLRender::setShaderVariables(const Shader& shader, const DrawingObjectType object)
+void OpenGLRender::setShaderVariables(const Shader& shader, const ObjectType object)
 {
-	if (object == DrawingObjectType::SHAPE)
+	if (object == ObjectType::SHAPE)
 	{
 		glm::mat4 model(1.0f);
 		m_view = Default_Values::camera.getViewMatrix();
@@ -142,7 +139,7 @@ void OpenGLRender::setShaderVariables(const Shader& shader, const DrawingObjectT
 		shader.setMat4("projection", m_projection);
 
 	}
-	else if (object == DrawingObjectType::MODEL)
+	else if (object == ObjectType::MODEL)
 	{
 		glm::mat4 model(1.0f);
 		m_view = Default_Values::camera.getViewMatrix();
@@ -153,16 +150,20 @@ void OpenGLRender::setShaderVariables(const Shader& shader, const DrawingObjectT
 		// for shadows
 		shader.setMat4("lightSpaceMatrix", m_lightProjectionMatrix);
 	}
-	else if (object == DrawingObjectType::FLOOR)
+	else if (object == ObjectType::FLOOR)
 	{
 		m_view = Default_Values::camera.getViewMatrix();
 		glm::mat4 res = m_projection * m_view;
 		glm::vec3 cameraWorldPos = Default_Values::camera.Position;
 
-
+		// grid
 		shader.setMat4("gridViewProjection", res);
 		shader.setVec3("cameraWorldPosition", cameraWorldPos);
 	}
+}
+void OpenGLRender::bindDefaultFramebuffer()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void fillPerspectiveMatrix(PerspectiveValues& pValues)

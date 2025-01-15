@@ -109,7 +109,6 @@ namespace Default_Values
 
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, 0, 3 * sizeof(float), (void*)0);
-
 	}
 
 	void OpenGl_Backend::deleteGlData()

@@ -110,15 +110,12 @@ namespace loader_constant_data
 
 				tempMaterialsPicFilesData.normalMap = static_obj_loader::loadTextureFromFile(tempMaterialPicFileName);
 			}
-			else
+			else if (tempMaterialName != "" || (strcmp(lineHeader, "#end") == 0))
 			{
 				/*m_materialsValues[indexToDrawPart] = tempMaterialsData;*/
-				if (tempMaterialPicFileName != "" || ((tempMaterialPicFileName != "") && (file.peek() == EOF)))
-				{
 					convert_to_binary_pdd::materialsPicturesFilesFromMtlData[tempMaterialName] = tempMaterialsPicFilesData;
 					std::cout << "Proceed mtl file data: " <<
 						convert_to_binary_pdd::materialsPicturesFilesFromMtlData[tempMaterialName].diffuseMap << '\n';
-				}
 			}
 		}
 		return true;
@@ -213,7 +210,7 @@ namespace static_obj_loader
 			{
 				std::string fileName;
 				iss >> fileName;
-				m_mtlFileName.push_back(fileName);
+				/*m_mtlFileName.push_back(fileName);*/
 
 			}
 

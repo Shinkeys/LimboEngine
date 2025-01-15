@@ -16,30 +16,9 @@ struct Material{
 	sampler2D texture_specular;
 };
 
-uniform sampler2D shadowMap;
+
 
 uniform Material material;
-
-float calculateShadow(vec4 fragPosLS)
-{
-	// we should do perspective divide for parameter
-	// to transform it from vec4(homogenius) to vec3
-	// now all the coords are in -1 1 range
-	vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
-
-	// depth in depth map in the range 0,1 so we should make this
-	projCoords = projCoords * 0.5 + 0.5;
-
-	float closestDepth = texture(shadowMap, projCoords.xy).r;
-
-	float currentDepth = projCoords.z;
-
-	float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
-
-	return shadow;
-}
-
-
 
 vec3 calculateLightning()
 {
@@ -69,12 +48,10 @@ vec3 calculateLightning()
 	float attenuation = 1.0 / distance * distance;
 	diffuse *= attenuation;
 
-	// shadows calculation
-	float shadow = calculateShadow(FragPosLightSpace);
 
 	vec3 ambient = 0.3 * diffuse;
 
-	return (ambient + (1.0 - shadow)) * (diff * diffuse + spec * specular);
+	return (ambient +  diff * diffuse + spec * specular);
 }
 
 

@@ -40,7 +40,7 @@ public:
 		pddMeshData.clear();
 	}
 	
-	void Draw(const Shader& shader, std::optional<GLuint> depthMap = std::nullopt);
-	void DrawShadowMapping(const Shader& shader);
+	void Draw(const Shader& shader);
+	void DrawShadowMapping();
 };
 #endif
